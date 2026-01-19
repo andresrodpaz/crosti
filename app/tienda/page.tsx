@@ -1,3 +1,5 @@
+"use client";
+
 import { Footer } from "@/components/footer"
 import { getCookies } from "@/lib/cookies-store"
 import { useCartStore } from "@/lib/cart-store"
