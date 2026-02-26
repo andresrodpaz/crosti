@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { getCookies } from "@/lib/cookies-store"
 import { useCartStore } from "@/lib/cart-store"
 import { Plus, Minus, Check, Package } from "lucide-react"
 import Image from "next/image"
@@ -12,6 +11,7 @@ import { toast } from "sonner"
 interface PackBuilderModalProps {
   open: boolean
   onClose: () => void
+  cookies: any[]
 }
 
 const PACK_SIZES = [
@@ -20,8 +20,7 @@ const PACK_SIZES = [
   { size: 24, price: 60, discount: "23% off" },
 ]
 
-export function PackBuilderModal({ open, onClose }: PackBuilderModalProps) {
-  const cookies = getCookies()
+export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalProps) {
   const { addItem } = useCartStore()
   const [selectedSize, setSelectedSize] = useState<number>(6)
   const [selections, setSelections] = useState<Record<string, number>>({})
@@ -136,7 +135,7 @@ export function PackBuilderModal({ open, onClose }: PackBuilderModalProps) {
               return (
                 <div
                   key={cookie.id}
-                  className="flex gap-3 p-3 border-2 border-[#930021]/20 rounded-lg hover:border-[#930021] transition-all bg-white"
+                  className="flex gap-3 p-3 border-2 border-[#930021]/20 rounded-lg hover:bg-[#F8E19A]/20 transition-all bg-white"
                 >
                   <div className="w-20 h-20 bg-[#F8E19A]/30 rounded-md relative overflow-hidden flex-shrink-0">
                     <Image

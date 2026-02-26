@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Filter, ArrowLeft, Menu, X, ShoppingBag } from "lucide-react"
+import { Search, Filter, ArrowLeft } from "lucide-react"
 import { CookieDetailModal } from "@/components/cookie-detail-modal"
 import Link from "next/link"
 import { Footer } from "@/components/footer"
@@ -45,14 +45,7 @@ export default function GalletasPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set())
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [hoveredCookie, setHoveredCookie] = useState<string | null>(null)
-
-  const scrollToSection = (sectionId: string) => {
-    window.location.href = `/#${sectionId}`
-    setMobileMenuOpen(false)
-  }
-
   useEffect(() => {
     loadData()
   }, [])
@@ -120,108 +113,6 @@ export default function GalletasPage() {
 
   return (
     <div className="min-h-screen bg-[#FEFCF5] flex flex-col">
-      {/* Header */}
-      <header className="bg-[#F8E19A] py-6 px-4 md:px-8 lg:px-16 shadow-sm sticky top-0 z-40 backdrop-blur-sm bg-[#F8E19A]/95">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
-            <Image
-              src="/images/crosti-logo-transparent.png"
-              alt="Crosti Cookies Logo"
-              width={180}
-              height={80}
-              className="h-14 md:h-16 lg:h-20 w-auto"
-              priority
-            />
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8 lg:gap-10">
-            <Link
-              href="/"
-              className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-            >
-              Inicio
-            </Link>
-            <button
-              onClick={() => scrollToSection("nosotros")}
-              className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-            >
-              Nosotros
-            </button>
-            <Link
-              href="/galletas"
-              className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium border-b-2 border-[#930021]"
-            >
-              Galletas
-            </Link>
-            <button
-              onClick={() => scrollToSection("contacto")}
-              className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-            >
-              Contacto
-            </button>
-            <Link
-              href="/tienda"
-              className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium flex items-center gap-2"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              Tienda
-            </Link>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-[#930021] p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-[#930021]/10">
-            <nav className="flex flex-col gap-4">
-              <Link
-                href="/"
-                className="text-[#930021] text-lg font-medium py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Inicio
-              </Link>
-              <button
-                onClick={() => scrollToSection("nosotros")}
-                className="text-[#930021] text-lg font-medium py-2 text-left"
-              >
-                Nosotros
-              </button>
-              <Link
-                href="/galletas"
-                className="text-[#930021] text-lg font-bold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Galletas
-              </Link>
-              <button
-                onClick={() => scrollToSection("contacto")}
-                className="text-[#930021] text-lg font-medium py-2 text-left"
-              >
-                Contacto
-              </button>
-              <Link
-                href="/tienda"
-                className="text-[#930021] text-lg font-medium py-2 flex items-center gap-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Tienda
-              </Link>
-            </nav>
-          </div>
-        )}
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-8 lg:px-16 py-12 w-full">
         <Link

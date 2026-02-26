@@ -1,14 +1,16 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { getCookies } from "@/lib/cookies-store"
 import { useCartStore } from "@/lib/cart-store"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingCart, Minus, Plus, Trash2, X, Menu, Package } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useState, useEffect } from "react"
-import { ShoppingBag } from "lucide-react"
+import { ShoppingCart, Minus, Plus, Trash2, X, Package } from "lucide-react"
 import { PackBuilderModal } from "@/components/pack-builder-modal"
+import { Navbar } from "@/components/navbar"
 import { NewsBanner } from "@/components/news-banner"
 import { BoxesSection } from "@/components/boxes-section"
 
@@ -17,7 +19,6 @@ export default function TiendaPage() {
   const [loading, setLoading] = useState(true)
   const { items, addItem, updateQuantity, removeItem, getTotalItems, getTotalPrice } = useCartStore()
   const [showCart, setShowCart] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showPackBuilder, setShowPackBuilder] = useState(false)
 
   useEffect(() => {
@@ -53,120 +54,13 @@ export default function TiendaPage() {
     return item?.quantity || 0
   }
 
-  const scrollToSection = (sectionId: string) => {
-    window.location.href = `/#${sectionId}`
-    setMobileMenuOpen(false)
-  }
-
   return (
     <div className="min-h-screen bg-[#F8E19A] flex flex-col">
       <NewsBanner />
-      <header className="relative z-20 bg-[#F8E19A] flex items-center justify-between px-4 md:px-8 lg:px-16 py-4 md:py-5">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/images/crosti-logo-transparent.png"
-            alt="Crosti Cookies Logo"
-            width={200}
-            height={90}
-            className="h-14 md:h-16 lg:h-20 w-auto"
-            priority
-          />
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8 lg:gap-10">
-          <Link
-            href="/"
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Inicio
-          </Link>
-          <button
-            onClick={() => scrollToSection("nosotros")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Nosotros
-          </button>
-          <button
-            onClick={() => scrollToSection("galletas")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Galletas
-          </button>
-          <button
-            onClick={() => scrollToSection("contacto")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Contacto
-          </button>
-          <Link
-            href="/tienda"
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium flex items-center gap-2 font-bold"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            Tienda
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden relative text-[#930021] hover:text-[#930021] hover:bg-[#930021]/10 h-12 w-12"
-            onClick={() => setShowCart(!showCart)}
-          >
-            <ShoppingCart className="w-6 h-6" />
-            {getTotalItems() > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#930021] text-[#F8E19A] w-6 h-6 rounded-full text-sm flex items-center justify-center font-bold shadow-lg">
-                {getTotalItems()}
-              </span>
-            )}
-          </Button>
-
-          <button
-            className="md:hidden text-[#930021] p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </header>
-
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 right-0 bg-[#F8E19A] z-30 px-4 py-4 shadow-lg border-t border-[#930021]/10">
-          <nav className="flex flex-col gap-4">
-            <Link href="/" className="text-[#930021] text-lg font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
-              Inicio
-            </Link>
-            <button
-              onClick={() => scrollToSection("nosotros")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Nosotros
-            </button>
-            <button
-              onClick={() => scrollToSection("galletas")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Galletas
-            </button>
-            <button
-              onClick={() => scrollToSection("contacto")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Contacto
-            </button>
-            <Link
-              href="/tienda"
-              className="text-[#930021] text-lg font-bold py-2 flex items-center gap-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              Tienda
-            </Link>
-          </nav>
-        </div>
-      )}
+      <Navbar 
+        onCartClick={() => setShowCart(!showCart)} 
+        cartItemCount={getTotalItems()} 
+      />
 
       <div className="container mx-auto px-4 lg:px-8 py-8 lg:py-16 flex-grow">
         <div className="mb-12 bg-white border-2 border-[#930021]/20 rounded-xl p-6 shadow-lg">
@@ -206,20 +100,26 @@ export default function TiendaPage() {
             </div>
 
             <div className="mb-12">
-              <Card className="border-2 border-[#930021] bg-gradient-to-br from-[#930021] to-[#b8002e] text-white overflow-hidden hover:shadow-2xl transition-all cursor-pointer group">
-                <CardContent className="p-6" onClick={() => setShowPackBuilder(true)}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-white/30 transition-all">
-                      <Package className="w-8 h-8" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-1">Arma tu Pack Personalizado</h3>
-                      <p className="text-sm text-white/90">Elige los sabores que quieras y ahorra en tu compra</p>
-                    </div>
-                    <Plus className="w-8 h-8 group-hover:scale-110 transition-transform" />
+              <div 
+                onClick={() => setShowPackBuilder(true)}
+                className="relative group cursor-pointer overflow-hidden rounded-3xl bg-linear-to-r from-[#930021] to-[#700019] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                   <Package className="w-64 h-64 text-white transform rotate-12" />
+                </div>
+                <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white">
+                  <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Package className="w-10 h-10 text-white" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1 text-center md:text-left z-10">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Arma tu Pack Personalizado</h3>
+                    <p className="text-white/90 text-base md:text-lg opacity-90 max-w-xl">Elige los sabores que quieras y ahorra en tu compra. ¡La combinación perfecta para ti!</p>
+                  </div>
+                  <div className="bg-white text-[#930021] p-4 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300 z-10">
+                    <Plus className="w-6 h-6 md:w-8 md:h-8" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Cajas Predefinidas */}
@@ -235,84 +135,76 @@ export default function TiendaPage() {
                     <p className="text-[#930021]">Cargando galletas...</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
               {cookies.map((cookie) => {
                 const quantity = getItemQuantity(cookie.id)
                 return (
-                  <Card
+                  <div
                     key={cookie.id}
-                    className="group overflow-hidden border-2 border-[#930021]/20 hover:border-[#930021] transition-all duration-300 hover:shadow-2xl bg-white hover:-translate-y-1"
+                    className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5"
                   >
-                    <div className="aspect-square bg-gradient-to-br from-[#F8E19A]/20 to-[#F8E19A]/40 relative overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden bg-[#F5F5F7]">
                       <Image
-                        src={cookie.imageUrl || "/placeholder.svg?height=400&width=400&query=artisan cookie"}
+                        src={cookie.imageUrl || "/placeholder.svg?height=500&width=500&query=cookie"}
                         alt={cookie.name}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                       {quantity > 0 && (
-                        <div className="absolute top-2 right-2 bg-[#930021] text-[#F8E19A] px-2 py-1 rounded-full text-xs font-bold shadow-lg ring-2 ring-white">
-                          {quantity} en carrito
+                        <div className="absolute top-4 right-4 bg-[#930021] text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg z-10 animate-in zoom-in">
+                          {quantity}
                         </div>
                       )}
                     </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-base lg:text-lg mb-2 text-[#930021] min-h-[2.5rem] leading-tight line-clamp-2">
-                        {cookie.name}
-                      </h3>
-                      <div className="flex items-baseline justify-between mb-3">
-                        <div className="flex items-baseline gap-1">
-                          <p className="text-2xl lg:text-3xl font-bold text-[#930021]">{cookie.price.toFixed(2)}</p>
-                          <span className="text-base text-[#930021]/70">€</span>
-                        </div>
+                    
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-xl text-gray-900 leading-tight line-clamp-1 flex-1" title={cookie.name}>
+                          {cookie.name}
+                        </h3>
                       </div>
+                      <p className="text-3xl font-black text-[#930021] mb-6">{cookie.price.toFixed(2)}<span className="text-lg font-bold ml-1">€</span></p>
 
-                      {quantity === 0 ? (
-                        <Button
-                          className="w-full h-10 text-sm font-semibold shadow-md hover:shadow-xl transition-all bg-[#930021] hover:bg-[#930021]/90 text-[#F8E19A] group"
-                          onClick={() =>
-                            addItem({
-                              id: cookie.id,
-                              name: cookie.name,
-                              price: cookie.price,
-                              imageUrl: cookie.imageUrl,
-                            })
-                          }
-                        >
-                          <Plus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                          Agregar al carrito
-                        </Button>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 w-full bg-[#F8E19A]/30 rounded-lg p-1">
+                      <div className="mt-auto">
+                        {quantity === 0 ? (
+                          <Button
+                            className="w-full h-12 rounded-xl text-lg font-bold shadow-sm hover:shadow-lg transition-all bg-[#930021] hover:bg-[#7a001b] text-white group"
+                            onClick={() =>
+                              addItem({
+                                id: cookie.id,
+                                name: cookie.name,
+                                price: cookie.price,
+                                imageUrl: cookie.imageUrl,
+                              })
+                            }
+                          >
+                            <Plus className="w-5 h-5 mr-2 group-hover:scale-125 transition-transform" />
+                            Agregar
+                          </Button>
+                        ) : (
+                          <div className="flex items-center justify-between bg-[#F5F5F7] rounded-xl p-1.5 w-full">
                             <Button
                               size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 hover:bg-[#930021] hover:text-[#F8E19A] text-[#930021] transition-all"
+                              variant="ghost" 
+                              className="h-10 w-10 bg-white rounded-lg shadow-sm hover:bg-white text-[#930021] hover:text-red-700"
                               onClick={() => updateQuantity(cookie.id, quantity - 1)}
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Minus className="w-5 h-5" />
                             </Button>
-                            <div className="flex-1 text-center">
-                              <span className="text-xl font-bold text-[#930021]">{quantity}</span>
-                            </div>
+                            <span className="font-bold text-xl text-[#930021]">{quantity}</span>
                             <Button
                               size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 hover:bg-[#930021] hover:text-[#F8E19A] text-[#930021] transition-all"
+                              variant="ghost" 
+                              className="h-10 w-10 bg-[#930021] rounded-lg shadow-sm hover:bg-[#7a001b] text-white"
                               onClick={() => updateQuantity(cookie.id, quantity + 1)}
                             >
-                              <Plus className="w-3.5 h-3.5" />
+                              <Plus className="w-5 h-5" />
                             </Button>
                           </div>
-                          <p className="text-center text-xs text-[#930021]/70">
-                            Subtotal:{" "}
-                            <span className="font-bold text-[#930021]">€{(cookie.price * quantity).toFixed(2)}</span>
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )
               })}
             </div>
@@ -434,7 +326,7 @@ export default function TiendaPage() {
       </div>
 
       <Footer />
-      <PackBuilderModal open={showPackBuilder} onClose={() => setShowPackBuilder(false)} />
+      <PackBuilderModal open={showPackBuilder} onClose={() => setShowPackBuilder(false)} cookies={cookies} />
     </div>
   )
 }

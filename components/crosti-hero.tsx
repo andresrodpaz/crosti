@@ -1,136 +1,148 @@
 "use client"
 
-import { Truck, Award, Leaf, Menu, X, ShoppingBag } from "lucide-react"
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { usePathname } from "next/navigation"
+import { Menu, X, Truck, Award, Leaf } from "lucide-react"
 
 export function CrostiHero() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === "/"
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-      setMobileMenuOpen(false)
+    if (isHome) {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" })
+      }
+    } else {
+      window.location.href = `/#${sectionId}`
     }
+    setMobileMenuOpen(false)
   }
 
+  const navLinks = [
+    { name: "Inicio", href: "/" },
+    { name: "Tienda", href: "/tienda" },
+    { name: "Nosotros", action: () => scrollToSection("nosotros") },
+    { name: "Galletas", href: "/galletas" },
+    { name: "Contacto", action: () => scrollToSection("contacto") },
+  ]
+
   return (
-    <div className="min-h-screen bg-[#F8E19A] relative overflow-hidden flex flex-col">
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-8 lg:px-16 py-4 md:py-5">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/images/crosti-logo-transparent.png"
-            alt="Crosti Cookies Logo"
-            width={200}
-            height={90}
-            className="h-14 md:h-16 lg:h-20 w-auto"
-            priority
-          />
-        </Link>
+    <div className="min-h-screen bg-[#F4E4C1] relative overflow-visible flex flex-col">
+      {/* Garabato decorativo SVG - fuera de cualquier stacking context */}
+      {/* Garabato decorativo SVG - movido al layout principal */}
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 lg:gap-10">
-          <Link
-            href="/"
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Inicio
+      {/* Navbar integrado */}
+      <header className="relative z-50 py-4 md:py-6 px-4 md:px-8 lg:px-16">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+            <Image
+              src="/images/crosti-logo-transparent.png"
+              alt="Crosti Cookies Logo"
+              width={240}
+              height={110}
+              className="h-16 md:h-20 lg:h-24 w-auto"
+              priority
+            />
           </Link>
-          <button
-            onClick={() => scrollToSection("nosotros")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Nosotros
-          </button>
-          <button
-            onClick={() => scrollToSection("galletas")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Galletas
-          </button>
-          <button
-            onClick={() => scrollToSection("contacto")}
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
-          >
-            Contacto
-          </button>
-          <Link
-            href="/tienda"
-            className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium flex items-center gap-2"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            Tienda
-          </Link>
-        </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-[#930021] p-2"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Menu"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+            {navLinks.map((link) => (
+              link.href ? (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <button
+                  key={link.name}
+                  onClick={link.action}
+                  className="text-[#930021] hover:opacity-80 transition-opacity text-base lg:text-lg font-medium"
+                >
+                  {link.name}
+                </button>
+              )
+            ))}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-[#930021] p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 pt-4 border-t border-[#930021]/10 bg-[#F4E4C1]">
+            <nav className="flex flex-col gap-4 px-4 pb-4">
+              {navLinks.map((link) => (
+                link.href ? (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-[#930021] text-lg font-medium py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.name}
+                    onClick={() => {
+                      link.action && link.action()
+                    }}
+                    className="text-[#930021] text-lg font-medium py-2 text-left"
+                  >
+                    {link.name}
+                  </button>
+                )
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 right-0 bg-[#F8E19A] z-30 px-4 py-4 shadow-lg border-t border-[#930021]/10">
-          <nav className="flex flex-col gap-4">
-            <Link href="/" className="text-[#930021] text-lg font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
-              Inicio
-            </Link>
-            <button
-              onClick={() => scrollToSection("nosotros")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Nosotros
-            </button>
-            <button
-              onClick={() => scrollToSection("galletas")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Galletas
-            </button>
-            <button
-              onClick={() => scrollToSection("contacto")}
-              className="text-[#930021] text-lg font-medium py-2 text-left"
-            >
-              Contacto
-            </button>
-            <Link
-              href="/tienda"
-              className="text-[#930021] text-lg font-medium py-2 flex items-center gap-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              Tienda
-            </Link>
-          </nav>
-        </div>
-      )}
-
-      <section className="relative z-10 px-4 md:px-8 lg:px-16 py-8 flex-1 flex items-center">
-        <div className="grid md:grid-cols-2 gap-8 items-center w-full max-w-7xl mx-auto">
-          <div className="space-y-4 text-center md:text-left">
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-[#930021] leading-[1.1]">
+      {/* Hero Content */}
+      <section className="relative px-4 md:px-8 lg:px-16 py-8 flex-1 flex items-center">
+        <div className="grid md:grid-cols-2 gap-8 items-center w-full max-w-7xl mx-auto relative z-20">
+          <div className="space-y-6 text-left">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-[#930021] leading-[1.1]">
               <span className="block">Fresh baked</span>
-              <span className="inline-block">cookies</span>
+              <span className="block">cookies</span>
             </h1>
-            <p className="text-[#930021]/80 text-lg md:text-xl">Cookies Artesanales hechas con amor</p>
+            <p className="text-[#930021] text-lg md:text-xl font-normal">
+              Galletas artesanales hechas con amor desde Barcelona
+            </p>
           </div>
 
-          <div className="relative h-[500px] md:h-[600px] overflow-hidden">
-            <div className="w-full h-full bg-white rounded-3xl shadow-lg flex items-center justify-center overflow-hidden border-8 border-[#930021]">
-              <Image src="/images/crosti-022.jpg" alt="Crosti Cookies" fill className="object-cover" priority />
+          <div className="relative h-[400px] md:h-[500px] lg:h-[550px] flex items-center justify-center">
+            <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021]">
+              <Image 
+                src="/images/crosti-022.jpg" 
+                alt="Crosti Cookies Stack" 
+                fill 
+                className="object-cover" 
+                priority 
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-[#924C14] py-5 mt-auto">
+      {/* Features Section */}
+      <section className="bg-[#924C14] py-5 mt-auto relative z-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             <div className="flex items-center gap-3">
@@ -138,8 +150,8 @@ export function CrostiHero() {
                 <Truck className="w-6 h-6 text-[#F8E19A]" />
               </div>
               <div>
-                <h3 className="font-semibold text-[#F8E19A] text-base md:text-lg">Haz tu pedido en</h3>
-                <p className="text-[#F8E19A]/90 text-sm md:text-base font-medium">Glovo & Uber Eats</p>
+                <h3 className="font-semibold text-[#F8E19A] text-base md:text-lg">Entregas en Barcelona</h3>
+                <p className="text-[#F8E19A]/90 text-sm md:text-base">Galletas en la puerta de tu casa</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -148,7 +160,7 @@ export function CrostiHero() {
               </div>
               <div>
                 <h3 className="font-semibold text-[#F8E19A] text-base md:text-lg">Ingredientes premium</h3>
-                <p className="text-[#F8E19A]/70 text-sm md:text-base">Chocolate belga y avellanas</p>
+                <p className="text-[#F8E19A]/90 text-sm md:text-base">Chocolate belga y avellanas del Piamonte</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -157,7 +169,7 @@ export function CrostiHero() {
               </div>
               <div>
                 <h3 className="font-semibold text-[#F8E19A] text-base md:text-lg">Opciones veganas</h3>
-                <p className="text-[#F8E19A]/70 text-sm md:text-base">Deliciosas galletas para todos</p>
+                <p className="text-[#F8E19A]/90 text-sm md:text-base">Deliciosas galletas para todos</p>
               </div>
             </div>
           </div>

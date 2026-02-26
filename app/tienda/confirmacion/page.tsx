@@ -106,115 +106,121 @@ function ConfirmacionContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8E19A] flex items-center justify-center py-8">
-      <div className="max-w-6xl w-full mx-4">
-        <Card className="border-2 border-[#930021]/20 shadow-2xl bg-white overflow-hidden">
+    <div className="min-h-screen bg-[#F8E19A] flex items-center justify-center py-12 px-4">
+      <div className="max-w-6xl w-full">
+        <Card className="border-none shadow-2xl bg-white overflow-hidden rounded-3xl">
           <CardContent className="p-0">
-            <div className="grid md:grid-cols-2 gap-0">
-              <div className="p-8 md:p-12 flex flex-col justify-center">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-green-600" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-[#930021]">¡Pedido Confirmado!</h1>
-                  </div>
-                </div>
+            <div className="grid md:grid-cols-2 gap-0 min-h-[600px]">
+              {/* Left Column: Content */}
+              <div className="p-8 md:p-16 flex flex-col justify-center h-full relative">
+                {/* Background Pattern */}
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-5 pointer-events-none"></div>
 
-                <p className="text-lg text-[#924C14] mb-8">
-                  Tu pedido ha sido recibido exitosamente. Te enviaremos un correo de confirmación con todos los
-                  detalles.
-                </p>
-
-                {orderId && (
-                  <div className="space-y-4 mb-8">
-                    <div className="p-4 bg-[#F8E19A] border border-[#930021]/20 rounded-lg">
-                      <p className="text-sm text-[#924C14] mb-1 flex items-center gap-2">
-                        <Package className="w-4 h-4" />
-                        Número de pedido:
-                      </p>
-                      <p className="font-mono font-bold text-lg text-[#930021]">{orderId}</p>
+                <div className="relative z-10">
+                  <div className="mb-10">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#d1fae5] mb-6 shadow-sm">
+                      <CheckCircle2 className="w-10 h-10 text-[#059669]" />
                     </div>
-
-                    {email && (
-                      <div className="flex items-start gap-3 text-sm">
-                        <Mail className="w-4 h-4 text-[#930021] mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-[#924C14] font-medium">Confirmación enviada a:</p>
-                          <p className="text-[#930021]">{email}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {date && time && (
-                      <div className="flex items-start gap-3 text-sm">
-                        <Calendar className="w-4 h-4 text-[#930021] mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-[#924C14] font-medium">Entrega programada:</p>
-                          <p className="text-[#930021]">{date}</p>
-                          <p className="text-[#930021]/70 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {time}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {total && (
-                      <div className="pt-4 border-t border-[#930021]/10">
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-medium text-[#924C14]">Total pagado:</span>
-                          <span className="text-2xl font-bold text-[#930021]">€{total}</span>
-                        </div>
-                      </div>
-                    )}
+                    <h1 className="text-4xl md:text-5xl font-bold text-[#930021] mb-4 tracking-tight">¡Pedido Confirmado!</h1>
+                    <p className="text-xl text-[#924C14] leading-relaxed">
+                      Tu pedido ha sido recibido con éxito.
+                      <br/>
+                      <span className="text-[#6B5B52] text-base">Hemos enviado los detalles a tu correo.</span>
+                    </p>
                   </div>
-                )}
 
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-8">
-                  <p className="text-sm text-blue-900">
-                    <strong>Próximos pasos:</strong> Te contactaremos por WhatsApp para confirmar los detalles de tu
-                    entrega.
-                  </p>
-                </div>
+                  {orderId && (
+                    <div className="space-y-6 mb-10 bg-[#FAF7F2] p-8 rounded-2xl border border-[#F0E5D3]">
+                      <div className="flex flex-col gap-1 pb-6 border-b border-[#E5DACE]">
+                        <span className="text-xs font-bold text-[#924C14] uppercase tracking-widest">Número de Pedido</span>
+                        <span className="font-mono text-3xl font-bold text-[#930021] tracking-wider">#{orderId.slice(0, 8).toUpperCase()}</span>
+                      </div>
 
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleDownloadInvoice}
-                    disabled={isDownloading}
-                    className="w-full h-12 bg-[#930021] hover:bg-[#930021]/90 text-[#F8E19A] font-semibold shadow-md"
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    {isDownloading ? "Generando factura..." : "Descargar Factura PDF"}
-                  </Button>
-                  <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                         {email && (
+                          <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-2 text-[#924C14] mb-1">
+                                <Mail className="w-4 h-4" />
+                                <span className="text-xs font-bold uppercase tracking-wider">Email</span>
+                             </div>
+                             <span className="text-[#1F2937] font-medium break-all">{email}</span>
+                          </div>
+                         )}
+
+                         {date && (
+                          <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-2 text-[#924C14] mb-1">
+                                <Calendar className="w-4 h-4" />
+                                <span className="text-xs font-bold uppercase tracking-wider">Entrega</span>
+                             </div>
+                             <span className="text-[#1F2937] font-medium">{date}</span>
+                             <span className="text-[#6B5B52] text-sm flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> {time}
+                             </span>
+                          </div>
+                         )}
+                      </div>
+                      
+                      {total && (
+                        <div className="pt-6 border-t border-[#E5DACE] flex justify-between items-end">
+                           <span className="text-sm font-medium text-[#6B5B52]">Total Pagado</span>
+                           <span className="text-3xl font-bold text-[#930021]">€{total}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
                     <Button
-                      asChild
-                      variant="outline"
-                      className="h-11 border-2 border-[#930021] text-[#930021] hover:bg-[#930021]/10 bg-transparent font-medium"
+                      onClick={handleDownloadInvoice}
+                      disabled={isDownloading}
+                      className="w-full h-14 bg-[#930021] hover:bg-[#7a001b] text-[#F8E19A] font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
                     >
-                      <Link href="/tienda">Seguir Comprando</Link>
+                      <Download className="w-5 h-5 mr-2" />
+                      {isDownloading ? "Generando factura..." : "Descargar Factura PDF"}
                     </Button>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="h-11 border-2 border-[#930021]/50 text-[#930021]/80 hover:bg-[#930021]/5 bg-transparent"
-                    >
-                      <Link href="/">Volver al Inicio</Link>
-                    </Button>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="h-12 border-2 border-[#930021] text-[#930021] hover:bg-[#930021] hover:text-[#F8E19A] font-semibold rounded-xl transition-colors"
+                      >
+                        <Link href="/tienda">Tienda</Link>
+                      </Button>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="h-12 text-[#6B5B52] hover:text-[#930021] hover:bg-[#FAF7F2] font-semibold rounded-xl transition-colors"
+                      >
+                        <Link href="/">Volver al Inicio</Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="hidden md:flex items-center justify-center bg-[#930021] p-12">
-                <div className="relative w-full max-w-md">
-                  <Image
-                    src="/images/crosti-bag-transparent.png"
-                    alt="Crosti Bag"
-                    width={400}
-                    height={500}
-                    className="w-full h-auto"
-                  />
+              {/* Right Column: Visual */}
+              <div className="hidden md:flex flex-col items-center justify-center bg-[#930021] p-16 h-full relative overflow-hidden">
+                {/* Decorative Circles */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#F8E19A] rounded-full mix-blend-overlay opacity-10 blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#F8E19A] rounded-full mix-blend-overlay opacity-10 blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+                
+                <div className="relative z-10 w-full max-w-md aspect-square flex items-center justify-center">
+                   <div className="absolute inset-0 bg-white/5 rounded-full blur-2xl transform scale-90"></div>
+                   <Image
+                     src="/images/crosti-bag-transparent.png"
+                     alt="Crosti Bag"
+                     width={500}
+                     height={600}
+                     className="w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700"
+                     priority
+                   />
+                </div>
+                
+                <div className="text-center mt-12 relative z-10">
+                   <h3 className="text-[#F8E19A] text-3xl font-bold mb-3 tracking-tight">Gracias por elegirnos</h3>
+                   <p className="text-[#F8E19A]/80 text-lg">Hacemos cada galleta con amor para ti.</p>
                 </div>
               </div>
             </div>

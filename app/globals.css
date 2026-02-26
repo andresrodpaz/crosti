@@ -389,7 +389,9 @@
     overflow: hidden;
     border-right: 3px solid #930021;
     white-space: nowrap;
-    animation: typewriter 2s steps(40) 0.5s forwards, blink-caret 0.75s step-end infinite;
+    animation:
+      typewriter 2s steps(40) 0.5s forwards,
+      blink-caret 0.75s step-end infinite;
   }
 
   .animate-slide-infinite {
@@ -435,22 +437,22 @@
     scrollbar-color: #924c14 #faf6ed;
   }
 
-  .scrollbar-elegant::-webkit-scrollbar::-webkit-scrollbar {
+  .scrollbar-elegant::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
-  .scrollbar-elegant::-webkit-scrollbar::-webkit-scrollbar-track {
+  .scrollbar-elegant::-webkit-scrollbar-track {
     background: #faf6ed;
     border-radius: 10px;
   }
 
-  .scrollbar-elegant::-webkit-scrollbar::-webkit-scrollbar-thumb {
+  .scrollbar-elegant::-webkit-scrollbar-thumb {
     background: #924c14;
     border-radius: 10px;
   }
 
-  .scrollbar-elegant::-webkit-scrollbar::-webkit-scrollbar-thumb:hover {
+  .scrollbar-elegant::-webkit-scrollbar-thumb:hover {
     background: #930021;
   }
 }

@@ -23,230 +23,236 @@ export interface InvoiceData {
   note?: string
 }
 
-export function generateInvoicePDF(data: InvoiceData): jsPDF {
+export function generateInvoicePDF(data: InvoiceData, logoBase64?: string | null): jsPDF {
   const doc = new jsPDF()
 
-  // Crosti brand colors
-  const burgundy = [147, 0, 33] // #930021
-  const cream = [248, 225, 154] // #F8E19A
-  const brown = [146, 76, 20] // #924C14
-  const lightGray = [245, 245, 245]
+  // Crosti Brand Colors
+  const burgundy = "#930021"
+  const cream = "#F8E19A" 
+  const darkText = "#1F2937" // Gray-800
+  const lightText = "#6B7280" // Gray-500
 
-  // --- Header Section ---
-  doc.setFillColor(...burgundy)
-  doc.rect(0, 0, 210, 50, "F") // Increased header height
+  // --- Header ---
+  let startY = 20
 
-  // Title / Logo Area
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(32)
+  // Logo
+  if (logoBase64) {
+    try {
+      doc.addImage(logoBase64, "PNG", 15, 15, 40, 40) // Adjust size/pos
+    } catch (e) {
+      console.error("Failed to add image to PDF", e)
+    }
+  } else {
+    // Fallback text if no logo
+    doc.setFontSize(28)
+    doc.setTextColor(burgundy)
+    doc.setFont("helvetica", "bold")
+    doc.text("CROSTI", 20, 30)
+  }
+
+  // Invoice Details (Right aligned)
+  doc.setFontSize(10)
+  doc.setTextColor(lightText)
   doc.setFont("helvetica", "bold")
-  doc.text("CROSTI", 20, 25)
+  doc.text("FACTURA", 190, 20, { align: "right" })
   
   doc.setFontSize(14)
-  doc.setFont("helvetica", "normal")
-  doc.text("cookies & coffee", 20, 34) // Changed subtitle slightly for better aesthetic
+  doc.setTextColor(darkText)
+  doc.text(`#${data.orderNumber}`, 190, 28, { align: "right" })
 
-  // Invoice Label and Number
-  doc.setFontSize(24)
-  doc.setFont("helvetica", "bold")
-  doc.text("FACTURA", 185, 25, { align: "right" })
-  
-  doc.setFontSize(11)
-  doc.setFont("helvetica", "normal")
-  doc.text(`${data.orderNumber || 'N/A'}`, 185, 34, { align: "right" })
-
-  // --- Info Section ---
-  doc.setTextColor(0, 0, 0)
-  
-  const col1X = 20
-  const col2X = 110
-  const startY = 65
-
-  // Column 1: Customer Details
-  doc.setFontSize(12)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(...burgundy)
-  doc.text("CLIENTE", col1X, startY)
-  
-  doc.setTextColor(60, 60, 60)
   doc.setFontSize(10)
+  doc.setTextColor(lightText)
   doc.setFont("helvetica", "normal")
-  
-  let currentY = startY + 8
-  const lineHeight = 5
+  doc.text(`Fecha: ${data.date}`, 190, 35, { align: "right" })
 
-  if (data.customerName) {
-    doc.text(data.customerName, col1X, currentY)
-    currentY += lineHeight
-  }
-  
-  doc.text(data.customerEmail || '', col1X, currentY)
-  currentY += lineHeight
-  
-  doc.text(data.customerPhone || '', col1X, currentY)
-  currentY += lineHeight
-  
-  // Handing multiline address
-  const addressLines = doc.splitTextToSize(data.customerAddress || '', 80)
-  doc.text(addressLines, col1X, currentY)
+  // --- Separator ---
+  doc.setDrawColor(230, 230, 230)
+  doc.line(20, 60, 190, 60)
 
+  // --- Client & Delivery Info ---
+  const infoY = 75
+  const col1 = 20
+  const col2 = 110
 
-  // Column 2: Order & Delivery Details
-  doc.setFontSize(12)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(...burgundy)
-  doc.text("DETALLES DEL PEDIDO", col2X, startY)
-
-  doc.setTextColor(60, 60, 60)
+  // Client Column
   doc.setFontSize(10)
-  doc.setFont("helvetica", "bold") // Labels bold
-  
-  let col2Y = startY + 8
-  
-  doc.text("Fecha de Pedido:", col2X, col2Y)
-  doc.setFont("helvetica", "normal")
-  doc.text(data.date || '', col2X + 35, col2Y)
-  col2Y += lineHeight
-
+  doc.setTextColor(burgundy)
   doc.setFont("helvetica", "bold")
-  doc.text("Fecha Entrega:", col2X, col2Y)
-  doc.setFont("helvetica", "normal")
-  doc.text(data.deliveryDate || '', col2X + 35, col2Y)
-  col2Y += lineHeight
+  doc.text("FACTURADO A", col1, infoY)
 
+  doc.setFontSize(10)
+  doc.setTextColor(darkText)
   doc.setFont("helvetica", "bold")
-  doc.text("Hora Entrega:", col2X, col2Y)
+  doc.text(data.customerName || "Cliente", col1, infoY + 8)
+
+  doc.setFontSize(10)
+  doc.setTextColor(lightText)
   doc.setFont("helvetica", "normal")
-  doc.text(data.deliveryTime || '', col2X + 35, col2Y)
-  col2Y += lineHeight
+  doc.text(data.customerEmail, col1, infoY + 14)
+  doc.text(data.customerPhone, col1, infoY + 20)
+  
+  const addressLines = doc.splitTextToSize(data.customerAddress, 80)
+  doc.text(addressLines, col1, infoY + 26)
+
+  // Delivery Column
+  doc.setFontSize(10)
+  doc.setTextColor(burgundy)
+  doc.setFont("helvetica", "bold")
+  doc.text("DETALLES DE ENTREGA", col2, infoY)
+
+  doc.setTextColor(darkText)
+  
+  let deliveryY = infoY + 8
+  doc.setFont("helvetica", "bold")
+  doc.text("Fecha:", col2, deliveryY)
+  doc.setFont("helvetica", "normal")
+  doc.text(data.deliveryDate, col2 + 25, deliveryY)
+  
+  deliveryY += 6
+  doc.setFont("helvetica", "bold")
+  doc.text("Hora:", col2, deliveryY)
+  doc.setFont("helvetica", "normal")
+  doc.text(data.deliveryTime, col2 + 25, deliveryY)
 
   if (data.note) {
-    col2Y += 2
+    deliveryY += 8
+    doc.setTextColor(lightText)
     doc.setFont("helvetica", "italic")
-    doc.setTextColor(100, 100, 100)
     const noteLines = doc.splitTextToSize(`Nota: ${data.note}`, 80)
-    doc.text(noteLines, col2X, col2Y)
+    doc.text(noteLines, col2, deliveryY)
   }
 
   // --- Items Table ---
-  const tableStartY = Math.max(currentY + (addressLines.length * 5), col2Y) + 15
+  const tableY = Math.max(infoY + 26 + (addressLines.length * 4), deliveryY + 15) + 15
 
   const tableBody: any[] = []
-
+  
   data.items.forEach((item) => {
-    const price = typeof item.price === 'number' ? item.price : 0
-    const subtotal = typeof item.subtotal === 'number' ? item.subtotal : (price * (item.quantity || 1))
-    const quantity = item.quantity || 1
-    const name = item.name || 'Producto'
-
+    tableBody.push([
+      item.name,
+      item.quantity,
+      `€${item.price.toFixed(2)}`,
+      `€${item.subtotal.toFixed(2)}`
+    ])
+    
     if (item.packCookies && item.packCookies.length > 0) {
-      // Pack Header
-      tableBody.push([{ content: name, styles: { fontStyle: 'bold', textColor: [0, 0, 0] } }, quantity.toString(), `€${price.toFixed(2)}`, `€${subtotal.toFixed(2)}`])
-      // Pack Items
-      item.packCookies.forEach((cookie) => {
-        tableBody.push([`  • ${cookie.cookieName || 'Galleta'} (x${cookie.quantity || 1})`, "", "", ""])
-      })
-    } else {
-      // Regular Item
-      tableBody.push([name, quantity.toString(), `€${price.toFixed(2)}`, `€${subtotal.toFixed(2)}`])
+       item.packCookies.forEach(c => {
+         tableBody.push([
+           `  • ${c.cookieName} (x${c.quantity})`,
+           "",
+           "",
+           ""
+         ])
+       })
     }
   })
 
   autoTable(doc, {
-    startY: tableStartY,
-    head: [["PRODUCTO", "CANT.", "PRECIO UNIT.", "SUBTOTAL"]],
+    startY: tableY,
+    head: [["DESCRIPCIÓN", "CANT.", "PRECIO UNIT.", "TOTAL"]],
     body: tableBody,
-    theme: "plain", // Cleaner look
+    theme: 'grid',
+    styles: {
+      font: "helvetica",
+      fontSize: 9,
+      cellPadding: 6,
+      textColor: [60, 60, 60],
+      lineColor: [240, 240, 240],
+      lineWidth: 0.1,
+    },
     headStyles: {
       fillColor: burgundy,
       textColor: [255, 255, 255],
-      fontSize: 10,
-      fontStyle: "bold",
-      halign: 'left',
-      cellPadding: 8
-    },
-    styles: {
-      fontSize: 10,
-      cellPadding: 6,
-      lineColor: [230, 230, 230],
-      lineWidth: 0.1,
+      fontStyle: 'bold',
+      halign: 'left'
     },
     columnStyles: {
-      0: { cellWidth: 'auto' }, // Product
-      1: { halign: "center", cellWidth: 20 }, // Qty
-      2: { halign: "right", cellWidth: 30 }, // Price
-      3: { halign: "right", cellWidth: 30 }, // Subtotal
+      0: { cellWidth: 'auto' },
+      1: { cellWidth: 20, halign: 'center' },
+      2: { cellWidth: 30, halign: 'right' },
+      3: { cellWidth: 30, halign: 'right' }
     },
-    didParseCell: function(data) {
-        // Add bottom border to rows
-        if (data.section === 'body') {
-            data.cell.styles.lineWidth = { bottom: 0.1 };
-            data.cell.styles.lineColor = [230, 230, 230];
-        }
+    alternateRowStyles: {
+      fillColor: [252, 252, 252]
     }
   })
 
   // --- Footer Totals ---
-  const finalY = (doc as any).lastAutoTable.finalY + 10
+  const finalY = (doc as any).lastAutoTable.finalY + 15
 
-  // Draw a summary box
-  const boxWidth = 80
-  const boxX = 130 - 20 // aligned to right roughly
+  const totalsX = 130
   
-  // Subtotal
-  const subtotalValue = typeof data.subtotal === 'number' ? data.subtotal : 0
-  const totalValue = typeof data.total === 'number' ? data.total : subtotalValue
-
   doc.setFontSize(10)
-  doc.setTextColor(60, 60, 60)
-  
-  doc.text("Subtotal:", 140, finalY)
-  doc.text(`€${subtotalValue.toFixed(2)}`, 190, finalY, { align: "right" })
-  
-  doc.text("Envío:", 140, finalY + 6)
+  doc.setTextColor(lightText)
+  doc.text("Subtotal:", totalsX, finalY)
+  doc.setTextColor(darkText)
+  doc.text(`€${data.subtotal.toFixed(2)}`, 190, finalY, { align: "right" })
+
+  doc.setTextColor(lightText)
+  doc.text("Envío:", totalsX, finalY + 6)
+  doc.setTextColor(darkText)
   doc.text("Gratis", 190, finalY + 6, { align: "right" })
 
-  // Total Line
-  doc.setDrawColor(...burgundy)
-  doc.setLineWidth(0.5)
-  doc.line(140, finalY + 10, 190, finalY + 10)
-
-  // Total
-  doc.setFontSize(14)
+  // Total Bar
+  doc.setFillColor(burgundy)
+  doc.rect(totalsX - 5, finalY + 12, 75, 12, "F")
+  
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(12)
   doc.setFont("helvetica", "bold")
-  doc.setTextColor(...burgundy)
-  doc.text("TOTAL:", 140, finalY + 18)
-  doc.text(`€${totalValue.toFixed(2)}`, 190, finalY + 18, { align: "right" })
+  doc.text("TOTAL", totalsX, finalY + 20)
+  doc.text(`€${data.total.toFixed(2)}`, 190, finalY + 20, { align: "right" })
 
-  // --- Page Footer ---
+  // --- Bottom Footer ---
   const pageHeight = doc.internal.pageSize.height
   
-  doc.setFillColor(...cream)
-  doc.rect(0, pageHeight - 20, 210, 20, "F") // Footer bar
-  
+  doc.setDrawColor(240, 240, 240)
+  doc.line(20, pageHeight - 25, 190, pageHeight - 25)
+
   doc.setFontSize(9)
-  doc.setTextColor(...burgundy)
-  doc.setFont("helvetica", "bold")
-  doc.text("Gracias por elegir Crosti Cookies", 105, pageHeight - 11, { align: "center" })
-  
-  doc.setFontSize(8)
+  doc.setTextColor(lightText)
   doc.setFont("helvetica", "normal")
-  doc.text("www.crosti.com • @crosticookies", 105, pageHeight - 6, { align: "center" })
+  doc.text("Gracias por su compra", 105, pageHeight - 18, { align: "center" })
+  doc.text("www.crosticookies.com", 105, pageHeight - 13, { align: "center" })
 
   return doc
 }
 
-export function downloadInvoice(data: InvoiceData) {
-  const pdf = generateInvoicePDF(data)
-  pdf.save(`Factura-Crosti-${data.orderNumber}.pdf`)
+// Client-side helper that delegates to API to ensure consistent PDF generation (with logo)
+export async function downloadInvoice(data: InvoiceData) {
+  try {
+    const response = await fetch('/api/generate-invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+        throw new Error("Failed to generate invoice");
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob as any); // cast for safety
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `Factura-Crosti-${data.orderNumber}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Error downloading invoice:", error);
+    alert("Error al descargar la factura. Por favor intente nuevamente.");
+  }
 }
 
-export function getInvoicePDFBlob(data: InvoiceData): Blob {
-  const pdf = generateInvoicePDF(data)
+export function getInvoicePDFBlob(data: InvoiceData, logoBase64?: string | null): Blob {
+  const pdf = generateInvoicePDF(data, logoBase64)
   return pdf.output("blob")
 }
 
-export function getInvoicePDFBase64(data: InvoiceData): string {
-  const pdf = generateInvoicePDF(data)
+export function getInvoicePDFBase64(data: InvoiceData, logoBase64?: string | null): string {
+  const pdf = generateInvoicePDF(data, logoBase64)
   return pdf.output("dataurlstring").split(",")[1]
 }

@@ -4,7 +4,7 @@ import { X } from "lucide-react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 
-interface CookieItem {
+export interface CookieItem {
   id: string
   name: string
   description: string

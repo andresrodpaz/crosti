@@ -273,14 +273,67 @@ export function BoxesAdmin() {
                 />
               </div>
 
-              <div>
-                <Label>URL de Imagen</Label>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label>Imagen</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      placeholder="https://..."
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="file"
+                      id="image-upload"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        
+                        // Upload logic
+                        try {
+                           // Set loading state if I had one for this specific action, 
+                           // but for now relying on toast
+                           toast({ title: 'Subiendo imagen...', description: 'Por favor espere' })
+                           
+                           const res = await fetch(`/api/upload?filename=${file.name}`, {
+                             method: 'POST',
+                             body: file,
+                           })
+                           
+                           if (!res.ok) throw new Error("Upload failed")
+                           
+                           const blob = await res.json()
+                           setFormData(prev => ({ ...prev, image_url: blob.url }))
+                           toast({ title: 'Exito', description: 'Imagen subida correctamente' })
+
+                        } catch (error) {
+                          console.error(error)
+                          toast({ title: 'Error', description: 'Error al subir la imagen', variant: 'destructive' })
+                        }
+                      }}
+                    />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById("image-upload")?.click()}
+                        className="w-full bg-transparent"
+                    >
+                        Subir desde archivo
+                    </Button>
+                  </div>
+                  {formData.image_url && (
+                    <div className="mt-2 relative w-full h-40 bg-gray-100 rounded-lg overflow-hidden border">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
 
               <div className="flex items-center gap-2">
                 <Switch
@@ -394,7 +447,7 @@ export function BoxesAdmin() {
             }`}
           >
             {box.image_url ? (
-              <img src={box.image_url || "/placeholder.svg"} alt={box.name} className="w-full h-40 object-cover" />
+              <img src={box.image_url || "/placeholder.svg"} alt={box.name} className="w-full h-40 object-contain bg-gray-50" />
             ) : (
               <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
                 <Package className="w-12 h-12 text-gray-300" />
