@@ -160,17 +160,38 @@ export function MonthlyCookiesSection() {
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-95"></div>
                 
                 <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white w-full">
-                  <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+                  {/* mobile stacking: text then price/button */}
+                  <div className="flex flex-col gap-6 md:hidden">
                     <div className="max-w-2xl">
                       {heroItem.custom_tag && (
                         <span className="inline-block px-4 py-1.5 bg-[#930021] text-[#F8E19A] text-xs font-bold uppercase tracking-widest rounded-full mb-4 shadow-lg">
                           {heroItem.custom_tag}
                         </span>
                       )}
-                      
+                      <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
+                      <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
+                        {heroItem.cookie.description}
+                      </p>
+                      <span className="text-3xl font-bold text-[#F8E19A] mb-4">{heroItem.cookie.price.toFixed(2)}€</span>
+                      <button 
+                        onClick={() => setSelectedCookie(heroItem.cookie as any)}
+                        className="w-full px-8 py-3 bg-white text-[#930021] rounded-full font-bold text-lg hover:bg-[#F9E7AE] transition-all transform hover:scale-105 shadow-xl"
+                      >
+                        Probar ahora
+                      </button>
+                    </div>
+                  </div>
+                  {/* desktop layout */}
+                  <div className="hidden md:flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+                    <div className="max-w-2xl">
+                      {heroItem.custom_tag && (
+                        <span className="inline-block px-4 py-1.5 bg-[#930021] text-[#F8E19A] text-xs font-bold uppercase tracking-widest rounded-full mb-4 shadow-lg">
+                          {heroItem.custom_tag}
+                        </span>
+                      )}
                       <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
                       <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
                         {heroItem.cookie.description}
@@ -201,7 +222,7 @@ export function MonthlyCookiesSection() {
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
 
                 <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white">
                   {heroItem.custom_tag && (

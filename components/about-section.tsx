@@ -31,7 +31,7 @@ export function AboutSection() {
 
         {/* Right side - Person holding cookies image */}
         <div className="relative h-64 md:h-auto min-h-[280px] md:min-h-[320px] bg-[#930021] overflow-hidden">
-          <Image src="/images/crosti-people.jpeg" alt="Crosti Cookies handmade" fill className="object-cover" />
+          <Image src="/images/crosti-person.jpeg" alt="Crosti Cookies handmade" fill className="object-cover" />
         </div>
       </div>
     </section>

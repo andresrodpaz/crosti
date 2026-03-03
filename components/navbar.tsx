@@ -85,7 +85,7 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-[#930021]/10 bg-[#F4E4C1]">
+          <div className="md:hidden mt-4 pt-4 border-t border-[#930021]/10 bg-[#F8E19A]">
             <nav className="flex flex-col gap-4 px-4 pb-4">
               {navLinks.map((link) => (
                 link.href ? (
