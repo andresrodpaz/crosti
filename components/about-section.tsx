@@ -18,7 +18,7 @@ export function AboutSection() {
         {/* Left side - Cookie illustration and text */}
         <div className="bg-[#930021] py-12 md:py-16 px-6 md:px-8 flex flex-col items-center justify-center text-center">
           {/* Cookie illustration */}
-          <div className="relative w-40 h-40 md:w-52 md:h-52 lg:w-60 lg:h-60 mb-6 md:mb-8">
+          <div className="relative w-72 h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] mb-6 md:mb-8">
             <Image src="/images/abrazo-crosti.png" alt="Crosti Cookies Hug" fill className="object-contain" />
           </div>
 

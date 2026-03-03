@@ -17,7 +17,7 @@ export function VisitSection() {
           <div className="space-y-6 md:space-y-8">
             <div>
               <h3 className="text-[#930021] font-bold text-base md:text-lg mb-2">Ubicación</h3>
-              <p className="text-[#930021]/80 text-sm mb-3">Carrer de Llul 223, Barcelona, Spain 08005</p>
+              <p className="text-[#930021]/80 text-sm mb-3">Carrer de Llul 223, Barcelona, España 08005</p>
               <a
                 href="https://www.google.com/maps/search/?api=1&query=Carrer+de+Llul+223+Barcelona+08005"
                 target="_blank"
@@ -42,7 +42,7 @@ export function VisitSection() {
               <h3 className="text-[#930021] font-bold text-base md:text-lg mb-2">Contacto</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <p className="text-[#930021]/80">+34 931 234 567</p>
-                <p className="text-[#930021]/80">hola@crosti.bcn</p>
+                <p className="text-[#930021]/80">hola@crosti.es</p>
               </div>
               <a
                 href="https://instagram.com/crosticookies"

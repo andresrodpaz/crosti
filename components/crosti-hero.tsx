@@ -25,16 +25,15 @@ export function CrostiHero() {
 
   const navLinks = [
     { name: "Inicio", href: "/" },
-    { name: "Tienda", href: "/tienda" },
     { name: "Nosotros", action: () => scrollToSection("nosotros") },
     { name: "Galletas", href: "/galletas" },
     { name: "Contacto", action: () => scrollToSection("contacto") },
+    { name: "Tienda", href: "/tienda" },
   ]
 
   return (
-    <div className="min-h-screen bg-[#F4E4C1] relative overflow-visible flex flex-col">
-      {/* Garabato decorativo SVG - fuera de cualquier stacking context */}
-      {/* Garabato decorativo SVG - movido al layout principal */}
+    <div className="min-h-screen bg-[#F8E19A] relative overflow-visible flex flex-col">
+     
 
       {/* Navbar integrado */}
       <header className="relative z-50 py-4 md:py-6 px-4 md:px-8 lg:px-16">
@@ -128,16 +127,16 @@ export function CrostiHero() {
           </div>
 
           <div className="relative h-[400px] md:h-[500px] lg:h-[550px] flex items-center justify-center">
-            <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021]">
-              <Image 
-                src="/images/crosti-022.jpg" 
-                alt="Crosti Cookies Stack" 
-                fill 
-                className="object-cover" 
-                priority 
-              />
-            </div>
-          </div>
+  <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021]">
+    <Image 
+      src="/images/crosti-cookies-hero.jpg" 
+      alt="Crosti Cookies Stack" 
+      fill 
+      className="object-cover object-center scale-115" 
+      priority 
+    />
+  </div>
+</div>
         </div>
       </section>
 

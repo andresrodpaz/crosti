@@ -5,6 +5,7 @@ import { Search, Filter, ArrowLeft } from "lucide-react"
 import { CookieDetailModal } from "@/components/cookie-detail-modal"
 import Link from "next/link"
 import { Footer } from "@/components/footer"
+import { Navbar } from "@/components/navbar"
 import Image from "next/image"
 
 interface CookieItem {
@@ -113,15 +114,17 @@ export default function GalletasPage() {
 
   return (
     <div className="min-h-screen bg-[#FEFCF5] flex flex-col">
+
+      <Navbar/>
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-8 lg:px-16 py-12 w-full">
-        <Link
+        {/* <Link
           href="/"
           className="inline-flex items-center gap-2 text-[#930021] hover:opacity-80 transition-all hover:gap-3 mb-6 text-sm font-medium group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
           Volver a inicio
-        </Link>
+        </Link> */}
 
         <div className="text-center mb-10 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Todas nuestras galletas</h1>
@@ -216,7 +219,9 @@ export default function GalletasPage() {
                 onMouseLeave={() => setHoveredCookie(null)}
               >
                 {/* Image */}
-                <div className="bg-white aspect-[4/5] max-h-[280px] rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors">
+                <div className="
+                bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors
+                ">
                   {cookie.tags.length > 0 && (
                     <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
                       {cookie.tags.slice(0, 2).map((tag) => (

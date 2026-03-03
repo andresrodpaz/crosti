@@ -19,7 +19,7 @@ export function Footer() {
           {/* Social Icons */}
           <div className="flex items-center gap-4 flex-shrink-0">
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/p/Crosti-Cookies-61581835744529/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#F9E7AE] hover:text-white transition-colors"
@@ -28,7 +28,7 @@ export function Footer() {
               <Facebook className="w-5 h-5" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/crosticookies"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#F9E7AE] hover:text-white transition-colors"
@@ -37,7 +37,7 @@ export function Footer() {
               <Instagram className="w-5 h-5" />
             </a>
             <a
-              href="https://tiktok.com"
+              href="https://www.tiktok.com/@crosticookies"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#F9E7AE] hover:text-white transition-colors"
