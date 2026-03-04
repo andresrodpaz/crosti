@@ -69,7 +69,7 @@ export default async function GalletasPage() {
   const initialTags: Tag[] = (tagsData || [])
 
   return (
-    <div className="min-h-screen bg-[#FEFCF5] flex flex-col">
+    <div className="min-h-screen bg-[#F0DEC1] flex flex-col">
       <Navbar />
       <CookiesCatalog initialCookies={initialCookies} initialTags={initialTags} />
       <Footer />

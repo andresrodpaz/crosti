@@ -113,7 +113,7 @@ export default function GalletasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FEFCF5] flex flex-col">
+    <div className="min-h-screen bg-[#FFF3E2] flex flex-col">
 
       <Navbar/>
       {/* Main Content */}
@@ -195,9 +195,9 @@ export default function GalletasPage() {
         )}
 
         {/* Results Count */}
-        <p className="text-[#930021]/60 text-sm mb-6">
+        {/* <p className="text-[#930021]/60 text-sm mb-6">
           {filteredCookies.length} {filteredCookies.length === 1 ? "galleta encontrada" : "galletas encontradas"}
-        </p>
+        </p> */}
 
         {/* Cookie Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

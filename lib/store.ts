@@ -4,6 +4,7 @@ export type Tag = {
   id: string
   name: string
   colorId: string
+  color_hex?: string
 }
 
 export type FavoriteColor = {

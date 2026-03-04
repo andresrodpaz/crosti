@@ -16,18 +16,18 @@ export function AboutSection() {
 
       <div className="grid md:grid-cols-2">
         {/* Left side - Cookie illustration and text */}
-        <div className="bg-[#930021] py-12 md:py-16 px-6 md:px-8 flex flex-col items-center justify-center text-center">
-          {/* Cookie illustration */}
-          <div className="relative w-72 h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] mb-6 md:mb-8">
-            <Image src="/images/abrazo-crosti.png" alt="Crosti Cookies Hug" fill className="object-contain" />
-          </div>
+        <div className="bg-[#930021] py-8 md:py-12 px-6 md:px-8 flex flex-col items-center justify-center text-center">
+  {/* Cookie illustration */}
+  <div className="relative w-72 h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] -mb-8 md:-mb-12">
+    <Image src="/images/abrazo-crosti.png" alt="Crosti Cookies Hug" fill className="object-contain" />
+  </div>
 
-          <h3 className="text-[#F9E7AE] text-xl md:text-2xl font-bold mb-3 md:mb-4">Hecho con Amor</h3>
-          <p className="text-[#F9E7AE]/90 text-sm leading-relaxed max-w-md">
-            Cada galleta es una expresión de nuestro cariño familiar. Desde el primer mezcla hasta el último horneado,
-            el amor de madre e hijas está presente en cada bocado, en cada receta, en cada detalle que nos apasiona.
-          </p>
-        </div>
+  <h3 className="text-[#F9E7AE] text-xl md:text-2xl font-bold mb-2 md:mb-3">Hecho con Amor</h3>
+  <p className="text-[#F9E7AE]/90 text-sm leading-relaxed max-w-md">
+    Cada galleta es una expresión de nuestro cariño familiar. Desde el primer mezcla hasta el último horneado,
+    el amor de madre e hijas está presente en cada bocado, en cada receta, en cada detalle que nos apasiona.
+  </p>
+</div>
 
         {/* Right side - Person holding cookies image */}
         <div className="relative h-64 md:h-auto min-h-[280px] md:min-h-[320px] bg-[#930021] overflow-hidden">

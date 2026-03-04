@@ -132,7 +132,7 @@ export function CookiesSection() {
 
   if (isLoading) {
     return (
-      <section id="galletas" className="bg-[#FEFCF5] py-16 px-8 lg:px-16">
+      <section id="galletas" className="bg-[#FFF3E2] py-16 px-8 lg:px-16">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 border-4 border-[#930021]/20 border-t-[#930021] rounded-full animate-spin"></div>
@@ -144,7 +144,7 @@ export function CookiesSection() {
   }
 
   return (
-    <section id="galletas" className="bg-[#FEFCF5] py-16 px-8 lg:px-16">
+    <section id="galletas" className="bg-[#FFF3E2] py-16 px-8 lg:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Nuestras galletas</h2>

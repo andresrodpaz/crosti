@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const [cookiesKey, setCookiesKey] = useState(0)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -116,7 +117,12 @@ export default function AdminPage() {
       <main className="flex-1 overflow-auto">
         {activeSection === "dashboard" && <DashboardSection onNavigate={setActiveSection} />}
         {activeSection === "orders" && <OrdersAdmin />}
-        {activeSection === "cookies" && <CookiesAdmin />}
+        {activeSection === "cookies" && (
+  <CookiesAdmin
+    key={cookiesKey}
+    onSaved={() => setCookiesKey((k) => k + 1)}
+  />
+)}
         {activeSection === "monthly" && <MonthlyCookiesAdmin />}
         {activeSection === "boxes" && <BoxesAdmin />}
         {activeSection === "banners" && <BannersAdmin />}
