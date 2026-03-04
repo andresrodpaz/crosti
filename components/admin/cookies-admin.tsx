@@ -21,6 +21,7 @@ export function CookiesAdmin() {
   const [tags, setTags] = useState<Tag[]>([])
   const [colors, setColors] = useState<Color[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false) // prevent multiple submits
   const [showModal, setShowModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [detailCookie, setDetailCookie] = useState<CookieItem | null>(null)
@@ -66,6 +67,8 @@ export function CookiesAdmin() {
     const fetchData = async () => {
       try {
         setLoading(true)
+        const supabase = createClient()
+        // fetch cookies
         const response = await fetch("/api/cookies")
         const cookiesData = await response.json()
 
@@ -74,6 +77,13 @@ export function CookiesAdmin() {
           setCookies([])
           return
         }
+
+        // fetch tags and colors from database to ensure up-to-date
+        const { data: tagsData } = await supabase.from("tags").select("id,name,color_id")
+        const { data: colorsData } = await supabase.from("colors").select("id,name,hex")
+
+        setTags(tagsData || [])
+        setColors(colorsData || [])
 
         const transformedCookies = cookiesData.map((cookie: any) => ({
           id: cookie.id,
@@ -351,6 +361,8 @@ export function CookiesAdmin() {
         description: `Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
         variant: "destructive",
       })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -858,9 +870,10 @@ export function CookiesAdmin() {
               <button
                 type="button"
                 onClick={handleSaveClick}
-                className="flex-1 px-4 py-2.5 bg-[#930021] text-white rounded-xl hover:bg-[#7a001b] transition-colors text-sm font-medium"
+                disabled={saving}
+                className="flex-1 px-4 py-2.5 bg-[#930021] text-white rounded-xl hover:bg-[#7a001b] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {editingCookie ? "Guardar cambios" : "Crear galleta"}
+                {saving ? "Guardando..." : editingCookie ? "Guardar cambios" : "Crear galleta"}
               </button>
             </div>
           </div>
