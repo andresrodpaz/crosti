@@ -33,9 +33,32 @@ export function CrostiHero() {
 
   return (
     <div className="min-h-screen bg-[#F8E19A] relative overflow-visible flex flex-col">
-     
 
-      {/* Navbar integrado */}
+      {/* Mobile squiggle — se oculta cuando el menú está abierto */}
+      {!mobileMenuOpen && (
+        <svg
+          className="block sm:hidden absolute inset-0 w-full h-full pointer-events-none z-[100]"
+          viewBox="0 0 390 844"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+          stroke="#9b001c"
+          fill="none"
+          strokeWidth="11"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M300 -50
+               C280 0,290 80,320 100
+               C330 110,345 95,340 80
+               C335 65,320 70,318 85
+               C315 200,350 220,380 240
+               C410 260,410 380,380 420
+               C360 450,380 500,390 560
+               C392 580,380 600,370 620" />
+        </svg>
+      )}
+
+      {/* Navbar */}
       <header className="relative z-50 py-4 md:py-6 px-4 md:px-8 lg:px-16">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
@@ -49,7 +72,6 @@ export function CrostiHero() {
             />
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             {navLinks.map((link) => (
               link.href ? (
@@ -72,7 +94,6 @@ export function CrostiHero() {
             ))}
           </nav>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden text-[#930021] p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -82,7 +103,6 @@ export function CrostiHero() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t border-[#930021]/10 bg-[#F8E19A]">
             <nav className="flex flex-col gap-4 px-4 pb-4">
@@ -99,9 +119,7 @@ export function CrostiHero() {
                 ) : (
                   <button
                     key={link.name}
-                    onClick={() => {
-                      link.action && link.action()
-                    }}
+                    onClick={() => { link.action && link.action() }}
                     className="text-[#930021] text-lg font-medium py-2 text-left"
                   >
                     {link.name}
@@ -127,16 +145,16 @@ export function CrostiHero() {
           </div>
 
           <div className="relative h-[400px] md:h-[500px] lg:h-[550px] flex items-center justify-center">
-  <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021]">
-    <Image 
-      src="/images/crosti-cookies-hero.jpg" 
-      alt="Crosti Cookies Stack" 
-      fill 
-      className="object-cover object-center scale-115" 
-      priority 
-    />
-  </div>
-</div>
+            <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021] z-[10]">
+              <Image
+                src="/images/crosti-cookies-hero.jpg"
+                alt="Crosti Cookies Stack"
+                fill
+                className="object-cover object-center scale-115 transition-transform duration-700 ease-in-out hover:scale-125"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </section>
 

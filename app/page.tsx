@@ -80,7 +80,7 @@ export default function Home() {
         </svg>
 
         {/* mobile (<640px) */}
-        <svg
+        {/* <svg
           className="block sm:hidden absolute inset-0 w-full h-full pointer-events-none z-[100]"
           viewBox="0 0 390 844"
           xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +99,7 @@ export default function Home() {
                C410 260,410 380,380 420
                C360 450,380 500,390 560
                C392 580,380 600,370 620" />
-        </svg>
+        </svg> */}
 
         <CrostiHero />
       </div>
