@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar } from "lucide-react"
+import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen } from "lucide-react"
 import { CookiesAdmin } from "@/components/admin/cookies-admin"
 import { ColorsAdmin } from "@/components/admin/colors-admin"
 import { TagsAdmin } from "@/components/admin/tags-admin"
@@ -8,10 +8,11 @@ import { OrdersAdmin } from "@/components/admin/orders-admin"
 import { BannersAdmin } from "@/components/admin/banners-admin"
 import { MonthlyCookiesAdmin } from "@/components/admin/monthly-cookies-admin"
 import { BoxesAdmin } from "@/components/admin/boxes-admin"
+import { GuidesAdmin } from "@/components/admin/guides-admin"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
-type Section = "dashboard" | "cookies" | "monthly" | "colors" | "tags" | "orders" | "banners" | "boxes"
+type Section = "dashboard" | "cookies" | "monthly" | "colors" | "tags" | "orders" | "banners" | "boxes" | "guides"
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
@@ -65,6 +66,7 @@ export default function AdminPage() {
     { id: "banners" as Section, label: "Banners", icon: Sparkles },
     { id: "tags" as Section, label: "Etiquetas", icon: Tag },
     { id: "colors" as Section, label: "Colores", icon: Palette },
+    { id: "guides" as Section, label: "Guias", icon: BookOpen },
   ]
 
   return (
@@ -128,6 +130,7 @@ export default function AdminPage() {
         {activeSection === "banners" && <BannersAdmin />}
         {activeSection === "colors" && <ColorsAdmin />}
         {activeSection === "tags" && <TagsAdmin />}
+        {activeSection === "guides" && <GuidesAdmin />}
       </main>
     </div>
   )

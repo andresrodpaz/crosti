@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, Truck, Award, Leaf } from "lucide-react"
+import { Menu, X, Truck, Cookie, Leaf } from "lucide-react"
 
 export function CrostiHero() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -173,7 +173,7 @@ export function CrostiHero() {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full border-2 border-[#F8E19A] flex items-center justify-center flex-shrink-0">
-                <Award className="w-6 h-6 text-[#F8E19A]" />
+                <Cookie className="w-6 h-6 text-[#F8E19A]" />
               </div>
               <div>
                 <h3 className="font-semibold text-[#F8E19A] text-base md:text-lg">Ingredientes premium</h3>
