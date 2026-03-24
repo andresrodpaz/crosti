@@ -71,16 +71,50 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
                 </button>
               )
             ))}
+
+            {/* Cart Button - Desktop */}
+            {onCartClick && (
+              <button
+                onClick={onCartClick}
+                className="relative text-[#930021] hover:opacity-80 transition-opacity p-2"
+                aria-label="Carrito de compras"
+              >
+                <ShoppingBag className="w-6 h-6" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#930021] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-[#930021] p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            {/* Cart Button - Mobile (always visible) */}
+            {onCartClick && (
+              <button
+                onClick={onCartClick}
+                className="relative text-[#930021] p-2"
+                aria-label="Carrito de compras"
+              >
+                <ShoppingBag className="w-6 h-6" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#930021] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            <button
+              className="text-[#930021] p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -109,6 +143,25 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
                   </button>
                 )
               ))}
+
+              {/* Cart Button - Mobile */}
+              {onCartClick && (
+                <button
+                  onClick={() => {
+                    onCartClick()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="flex items-center gap-3 text-[#930021] text-lg font-medium py-2"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Carrito</span>
+                  {cartItemCount > 0 && (
+                    <span className="bg-[#930021] text-white text-sm rounded-full px-2 py-1 font-bold">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </button>
+              )}
             </nav>
           </div>
         )}
