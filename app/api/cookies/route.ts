@@ -24,9 +24,11 @@ export async function GET(request: Request) {
       )
     `)
 
+    const includeAll = searchParams.get("all") === "true"
+
     if (carouselOnly) {
       query = query.eq("in_carousel", true).order("carousel_order", { ascending: true }).limit(8)
-    } else if (visibleOnly) {
+    } else if (visibleOnly || !includeAll) {
       query = query.eq("is_visible", true).order("name")
     } else {
       query = query.order("name")
@@ -36,7 +38,20 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("[Message] Database error fetching cookies:", error)
-      // ... error handling ...
+
+      // timeout fallback: return mock data instead de 500
+      if (error.code === "57014") {
+        const { getCookies } = await import("@/lib/cookies-store")
+        const mockCookies = getCookies().map((c) => ({
+          ...c,
+          image_urls: c.imageUrl ? [c.imageUrl] : [],
+          tags: [],
+          is_visible: true,
+          main_image_index: 0,
+        }))
+        return NextResponse.json(mockCookies)
+      }
+
       return NextResponse.json({ error: error.message, cookies: [] }, { status: 500 })
     }
 

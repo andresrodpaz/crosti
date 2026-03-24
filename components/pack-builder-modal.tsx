@@ -15,9 +15,9 @@ interface PackBuilderModalProps {
 }
 
 const PACK_SIZES = [
-  { size: 6, price: 18, discount: "10% off" },
-  { size: 12, price: 33, discount: "17% off" },
-  { size: 24, price: 60, discount: "23% off" },
+  { size: 6, price: 18, discount: "10% de ahorro" },
+  { size: 12, price: 33, discount: "17% de ahorro" },
+  { size: 24, price: 60, discount: "23% de ahorro" },
 ]
 
 export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalProps) {
@@ -99,7 +99,7 @@ export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalPro
                 className={`h-auto p-4 flex flex-col items-center gap-2 ${
                   selectedSize === pack.size
                     ? "bg-[#930021] text-white hover:bg-[#930021]/90"
-                    : "border-[#930021]/30 text-[#930021] hover:bg-[#930021]/10"
+                    : "border-[#930021]/30 text-[#930021] hover:bg-[#930021]/10 hover:text-[#930021]"
                 }`}
                 onClick={() => {
                   setSelectedSize(pack.size)
@@ -151,7 +151,7 @@ export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalPro
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-7 w-7 hover:bg-[#930021] hover:text-[#F8E19A] text-[#930021]"
+                        className="h-7 w-7 hover:bg-[#930021] text-[#930021]"
                         onClick={() => handleRemove(cookie.id)}
                         disabled={selected === 0}
                       >
@@ -161,7 +161,7 @@ export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalPro
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-7 w-7 hover:bg-[#930021] hover:text-[#F8E19A] text-[#930021]"
+                        className="h-7 w-7 hover:bg-[#930021] text-[#930021]"
                         onClick={() => handleAdd(cookie.id)}
                         disabled={totalSelected >= selectedSize}
                       >
@@ -176,7 +176,7 @@ export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalPro
           </div>
 
           <Button
-            className="w-full h-12 bg-[#930021] hover:bg-[#930021]/90 text-[#F8E19A] font-bold text-lg"
+            className="w-full h-12 bg-[#930021] hover:bg-[#930021]/90 text-[#930021] font-bold text-lg"
             onClick={handleAddToCart}
             disabled={totalSelected !== selectedSize}
           >
