@@ -367,6 +367,15 @@
   }
 }
 
+@keyframes skeleton-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @layer utilities {
   .animate-fade-in {
     animation: fade-in 0.5s ease-out;
@@ -420,6 +429,11 @@
 
   .animate-float {
     animation: float 3s ease-in-out infinite;
+  }
+
+  /* Skeleton shimmer sweep effect */
+  .skeleton-shimmer {
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
   }
 
   .scrollbar-hide {

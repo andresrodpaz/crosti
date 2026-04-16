@@ -5,6 +5,7 @@ import { Package, ShoppingCart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/cart-store"
 import { useToast } from "@/hooks/use-toast"
+import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 
 interface BoxCookie {
   cookie_id: string
@@ -82,11 +83,19 @@ export function BoxesSection() {
 
   if (loading) {
     return (
-      <section className="py-16 bg-[#FDF6E3]">
+      <section className="py-16 bg-gradient-to-b from-[#FDF6E3] to-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center h-48">
-            <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
+          {/* Header — visible immediately */}
+          <div className="text-center mb-12">
+            <div className="h-8 w-52 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse" />
+            <div className="h-6 w-36 bg-gray-200 rounded-2xl mx-auto mb-3 animate-pulse" />
+            <div className="h-4 w-80 bg-gray-200 rounded-full mx-auto animate-pulse" />
           </div>
+          <CookieSkeletonGrid
+            count={3}
+            variant="box"
+            gridClass="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          />
         </div>
       </section>
     )

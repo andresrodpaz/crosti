@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { CookieDetailModal } from "./cookie-detail-modal"
 import Link from "next/link"
+import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 
 interface CookieItem {
   id: string
@@ -133,11 +134,17 @@ export function CookiesSection() {
   if (isLoading) {
     return (
       <section id="galletas" className="bg-[#FFF3E2] py-16 px-8 lg:px-16">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 border-4 border-[#930021]/20 border-t-[#930021] rounded-full animate-spin"></div>
-            <p className="text-[#930021]/70 font-medium">Cargando galletas deliciosas...</p>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            {/* Title placeholder */}
+            <div className="h-14 bg-[#930021]/10 rounded-2xl w-64 mx-auto mb-4 animate-pulse" />
+            <div className="h-4 bg-[#930021]/10 rounded-full w-48 mx-auto animate-pulse" />
           </div>
+          <CookieSkeletonGrid
+            count={3}
+            variant="catalog"
+            gridClass="grid grid-cols-1 md:grid-cols-3 gap-6 px-8"
+          />
         </div>
       </section>
     )

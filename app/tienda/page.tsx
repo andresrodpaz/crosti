@@ -12,6 +12,7 @@ import { PackBuilderModal } from "@/components/pack-builder-modal"
 import { Navbar } from "@/components/navbar"
 import { NewsBanner } from "@/components/news-banner"
 import { BoxesSection } from "@/components/boxes-section"
+import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 
 
 export default function TiendaPage() {
@@ -196,10 +197,11 @@ export default function TiendaPage() {
               <h2 className="text-3xl font-bold text-[#930021] mb-6">Galletas Individuales</h2>
 
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="w-12 h-12 border-4 border-[#930021] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-[#930021]">Cargando galletas...</p>
-                </div>
+                <CookieSkeletonGrid
+                  count={6}
+                  variant="catalog"
+                  gridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"
+                />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
                   {cookies.map((cookie) => {

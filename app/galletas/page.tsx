@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
 import Image from "next/image"
+import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 
 interface CookieItem {
   id: string
@@ -63,8 +64,9 @@ export default function GalletasPage() {
       setFilteredCookies(cookiesData)
     } catch (error) {
       console.error("Error loading data:", error)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -99,17 +101,6 @@ export default function GalletasPage() {
 
   const toggleTagFilter = (tagId: string) => {
     setSelectedTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]))
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#FEFCF5] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-[#930021]/20 border-t-[#930021] rounded-full animate-spin"></div>
-          <p className="text-[#930021]/70 font-medium">Cargando galletas deliciosas...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -201,7 +192,14 @@ export default function GalletasPage() {
 
         {/* Cookie Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCookies.map((cookie) => {
+          {isLoading ? (
+            <CookieSkeletonGrid
+              count={8}
+              variant="catalog"
+              gridClass="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            />
+          ) : (
+            filteredCookies.map((cookie) => {
             const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
             const hoverImage = getHoverImage(cookie)
             const isVisible = visibleCards.has(cookie.id)
@@ -291,10 +289,11 @@ export default function GalletasPage() {
                 </div>
               </div>
             )
-          })}
+          })
+          )}
         </div>
 
-        {filteredCookies.length === 0 && (
+        {!isLoading && filteredCookies.length === 0 && (
           <div className="text-center py-16 animate-fade-in">
             <div className="w-16 h-16 bg-[#930021]/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-[#930021]/40" />

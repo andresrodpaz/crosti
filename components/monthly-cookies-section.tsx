@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowRight, Star, Sparkles } from "lucide-react"
 import Link from "next/link"
+import { CookieSkeletonCard, CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 
 interface CollectionItem {
   cookie: {
@@ -118,7 +119,33 @@ export function MonthlyCookiesSection() {
     loadActiveCollection()
   }, [])
 
-  if (loading || !collection || collection.items.length === 0) {
+  if (loading) {
+    return (
+      <section className="py-20 px-8 lg:px-16 overflow-hidden relative bg-[#FEFCF5]">
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Header skeleton */}
+          <div className="text-center mb-16 space-y-4">
+            <div className="h-6 w-32 bg-gray-200 rounded-full mx-auto animate-pulse" />
+            <div className="h-14 w-80 bg-gray-200 rounded-2xl mx-auto animate-pulse" />
+            <div className="h-5 w-64 bg-gray-200 rounded-full mx-auto animate-pulse" />
+          </div>
+          {/* Grid skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            {/* Hero skeleton */}
+            <div className="lg:col-span-7">
+              <CookieSkeletonCard variant="monthly-hero" />
+            </div>
+            {/* Side skeleton */}
+            <div className="lg:col-span-5">
+              <CookieSkeletonGrid count={3} variant="monthly-side" />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!collection || collection.items.length === 0) {
     return null
   }
 

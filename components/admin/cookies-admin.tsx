@@ -85,14 +85,6 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
     type: "info",
   })
 
-  const [editConfirmModal, setEditConfirmModal] = useState<{
-    isOpen: boolean
-    onConfirm: () => Promise<void>
-  }>({
-    isOpen: false,
-    onConfirm: async () => {},
-  })
-
   // ─── Carga inicial ──────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -297,11 +289,9 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
   // ─── Guardar galleta ────────────────────────────────────────────────────────
 
   const handleSaveClick = () => {
-    // Pide confirmación tanto al crear como al editar
-    setEditConfirmModal({
-      isOpen: true,
-      onConfirm: async () => { await handleSave() },
-    })
+    // Save directly — no intermediate confirmation modal needed for edits.
+    // Deletes still use a confirmation modal (irreversible action).
+    handleSave()
   }
 
   const handleSave = async () => {
@@ -310,8 +300,8 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       return
     }
 
-    // Cerrar modal de confirmación inmediatamente antes de empezar
-    setEditConfirmModal({ isOpen: false, onConfirm: async () => {} })
+    // Close the edit modal immediately so the saving overlay is unobstructed
+    setShowModal(false)
     setSaving(true)
     try {
       const supabase = createClient()
@@ -340,6 +330,27 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
           if (tagError) throw tagError
         }
 
+        // Optimistic local update so list refreshes without needing onSaved remount
+        const updatedTagObjects = tags.filter((t) => formData.tags.includes(t.id))
+        setCookies((prev) =>
+          prev.map((c) =>
+            c.id === editingCookie.id
+              ? {
+                  ...c,
+                  name: formData.name,
+                  description: formData.description,
+                  price: Number.parseFloat(formData.price) || 0,
+                  ingredients: formData.ingredients.split(",").map((i) => i.trim()).filter(Boolean),
+                  imageUrls: formData.imageUrls,
+                  mainImageIndex: formData.mainImageIndex,
+                  isVisible: formData.isVisible,
+                  showInCarousel: formData.showInCarousel,
+                  tags: updatedTagObjects,
+                }
+              : c,
+          ),
+        )
+
       } else {
         // Crear galleta nueva
         const { data, error } = await supabase.from("cookies").insert([cookieData]).select()
@@ -354,13 +365,14 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       }
 
       notify(editingCookie ? `${formData.name} actualizada correctamente.` : `${formData.name} creada correctamente.`)
-      // Espera breve para mostrar la notificación y luego remonta el componente
+      // Trigger parent remount if provided (full data refresh)
       setTimeout(() => {
         if (onSaved) onSaved()
       }, 1200)
     } catch (error) {
       console.error("[CookiesAdmin] Error saving cookie:", error)
       notify(`Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`, "error")
+    } finally {
       setSaving(false)
     }
   }
@@ -866,9 +878,9 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
         </div>
       )}
 
-      {/* Overlay de guardado */}
+      {/* Saving overlay — high z-index so it appears above all modals */}
       {saving && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[60]">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[70]">
           <div className="bg-white rounded-2xl px-8 py-6 flex items-center gap-4 shadow-xl">
             <div className="w-6 h-6 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
             <p className="text-gray-700 font-medium">Guardando...</p>
@@ -890,22 +902,6 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
         title={confirmModal.title}
         message={confirmModal.message}
         type={confirmModal.type}
-      />
-
-      <ConfirmationModal
-        isOpen={editConfirmModal.isOpen}
-        onClose={() => setEditConfirmModal({ ...editConfirmModal, isOpen: false })}
-        onConfirm={async () => {
-          await editConfirmModal.onConfirm()
-          setEditConfirmModal({ ...editConfirmModal, isOpen: false })
-        }}
-        title={editingCookie ? "Confirmar cambios" : "Crear galleta"}
-        message={
-          editingCookie
-            ? "¿Estás seguro de que quieres guardar los cambios en esta galleta?"
-            : "¿Estás seguro de que quieres crear esta galleta?"
-        }
-        type="info"
       />
     </>
   )
