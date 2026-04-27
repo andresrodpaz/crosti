@@ -12,9 +12,22 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { createClient } from "@/lib/supabase/client"
+import { MonthlyCookiesSection } from "../monthly-cookies-section"
+import type { MonthlyCollection as MonthlyCollectionData } from "../monthly-cookies-section"
 import { toast } from "@/components/ui/use-toast"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
@@ -29,6 +42,8 @@ interface MonthlyCollection {
   is_active: boolean
   status: "draft" | "active" | "archived"
   bg_color: string
+  text_color?: string
+  title_color?: string
 }
 
 interface CookieItem {
@@ -59,12 +74,19 @@ export function MonthlyCookiesAdmin() {
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<MonthlyCollection | null>(null)
+  const [collectionToDelete, setCollectionToDelete] = useState<MonthlyCollection | null>(null)
+  
+  // Preview state
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewCollection, setPreviewCollection] = useState<MonthlyCollectionData | null>(null)
   
   // Form State
   const [formData, setFormData] = useState<Partial<MonthlyCollection>>({
     title: "Galletas del Mes",
     subtitle: "Selección especial",
     bg_color: "#FEFCF5",
+    text_color: "#930021",
+    title_color: "#930021",
     status: "draft",
     is_active: false
   })
@@ -103,18 +125,19 @@ export function MonthlyCookiesAdmin() {
   }
 
   async function loadAvailableCookies() {
-    const { data } = await supabase
-      .from("cookies")
-      .select("id, name, image_urls, price")
-      .eq("is_visible", true)
-    
-    if (data) {
-      setAvailableCookies(data.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        price: c.price,
-        image_url: Array.isArray(c.image_urls) ? c.image_urls[0] : (JSON.parse(c.image_urls as unknown as string)?.[0] || "")
-      })))
+    try {
+      const res = await fetch("/api/cookies?all=true")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setAvailableCookies(data.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          price: c.price,
+          image_url: c.image_urls?.[0] || ""
+        })))
+      }
+    } catch (e) {
+      console.error("Error fetching cookies:", e)
     }
   }
 
@@ -166,6 +189,8 @@ export function MonthlyCookiesAdmin() {
         title: "Galletas del Mes",
         subtitle: "Selección especial",
         bg_color: "#FEFCF5",
+        text_color: "#930021",
+        title_color: "#930021",
         status: "draft",
         is_active: false
       })
@@ -278,17 +303,106 @@ export function MonthlyCookiesAdmin() {
       loadCollections()
   }
 
+  const handleDelete = async () => {
+    if (!collectionToDelete) return
+    try {
+      const { error } = await supabase
+        .from("monthly_collections")
+        .delete()
+        .eq("id", collectionToDelete.id)
+        
+      if (error) throw error
+      toast({ title: "Colección eliminada" })
+      loadCollections()
+    } catch (e) {
+      console.error(e)
+      toast({ variant: "destructive", title: "Error", description: "Ocurrió un error al eliminar" })
+    } finally {
+      setCollectionToDelete(null)
+    }
+  }
+
+  const handlePreview = (collection: MonthlyCollection) => {
+    // We need to fetch items or use what's available
+    // Easiest is to generate the MonthlyCollection format
+    supabase
+      .from("monthly_collection_items")
+      .select("*, cookie:cookies(id, name, description, price, image_urls)")
+      .eq("collection_id", collection.id)
+      .order("display_order")
+      .then(({ data }) => {
+        if (data) {
+           const items = data.map((item: any) => ({
+             is_hero: item.is_hero,
+             custom_tag: item.custom_tag,
+             cookie: {
+               id: item.cookie.id,
+               name: item.cookie.name,
+               description: item.cookie.description,
+               price: item.cookie.price,
+               image_url: Array.isArray(item.cookie.image_urls) ? item.cookie.image_urls[0] : (JSON.parse(item.cookie.image_urls as unknown as string)?.[0] || ""),
+               tags: []
+             }
+           }))
+           
+           setPreviewCollection({
+             title: collection.title,
+             subtitle: collection.subtitle,
+             description: collection.description,
+             bg_color: collection.bg_color,
+             title_color: collection.title_color,
+             text_color: collection.text_color,
+             items: items
+           })
+           setIsPreviewOpen(true)
+        }
+      })
+  }
+
+  const handleFormPreview = () => {
+    // Build preview from form data
+    const items = selectedCookies.map(item => ({
+      is_hero: item.is_hero,
+      custom_tag: item.custom_tag,
+      cookie: {
+        id: item.cookie!.id,
+        name: item.cookie!.name,
+        description: "", // Might be missing without full fetch, but ok for visual test
+        price: item.cookie!.price,
+        image_url: item.cookie!.image_url,
+        tags: []
+      }
+    }))
+    
+    setPreviewCollection({
+       title: formData.title || "",
+       subtitle: formData.subtitle || "",
+       description: formData.description,
+       bg_color: formData.bg_color || "#FEFCF5",
+       title_color: formData.title_color,
+       text_color: formData.text_color,
+       items: items
+    })
+    setIsPreviewOpen(true)
+  }
+
   const filteredCookies = availableCookies.filter(c => 
       c.name.toLowerCase().includes(cookieSearch.toLowerCase())
   )
 
-  if (isLoading) return <div className="p-8">Cargando...</div>
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[200px]">
+        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Galletas del Mes</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Colecciones</h2>
           <p className="text-gray-500 text-sm mt-1">Gestiona las colecciones destacadas mensuales</p>
         </div>
         <Button onClick={() => handleOpenDialog()} className="bg-[#930021]">
@@ -318,8 +432,14 @@ export function MonthlyCookiesAdmin() {
                             />
                             <Label className="text-sm text-gray-600">{collection.is_active ? 'Activa' : 'Inactiva'}</Label>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(collection)}>
+                        <Button variant="ghost" size="icon" onClick={() => handlePreview(collection)} title="Previsualizar">
+                            <Eye className="w-4 h-4 text-blue-500" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(collection)} title="Editar">
                             <Edit2 className="w-4 h-4 text-gray-500" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setCollectionToDelete(collection)} title="Eliminar">
+                            <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                     </div>
                 </div>
@@ -334,7 +454,8 @@ export function MonthlyCookiesAdmin() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogDescription className="sr-only">Formulario para crear o editar una colección mensual</DialogDescription>
+          <DialogHeader>
                 <DialogTitle>{editingCollection ? 'Editar Colección' : 'Nueva Colección'}</DialogTitle>
             </DialogHeader>
             
@@ -417,6 +538,48 @@ export function MonthlyCookiesAdmin() {
                              </div>
                         </div>
                     </div>
+
+                    {/* Colores de texto */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <Label>Color del título</Label>
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="color"
+                                    value={formData.title_color || "#930021"}
+                                    onChange={e => setFormData({...formData, title_color: e.target.value})}
+                                    className="w-10 h-10 rounded cursor-pointer border border-gray-200"
+                                />
+                                <Input
+                                    value={formData.title_color || "#930021"}
+                                    onChange={e => setFormData({...formData, title_color: e.target.value})}
+                                    className="h-8 text-xs font-mono flex-1"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Color del texto</Label>
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="color"
+                                    value={formData.text_color || "#924c14"}
+                                    onChange={e => setFormData({...formData, text_color: e.target.value})}
+                                    className="w-10 h-10 rounded cursor-pointer border border-gray-200"
+                                />
+                                <Input
+                                    value={formData.text_color || "#924c14"}
+                                    onChange={e => setFormData({...formData, text_color: e.target.value})}
+                                    className="h-8 text-xs font-mono flex-1"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Vista previa de colores */}
+                    <div className="rounded-xl p-4 border border-gray-200" style={{ backgroundColor: formData.bg_color }}>
+                        <p className="text-xs font-bold mb-1" style={{ color: formData.title_color || "#930021" }}>Título de la colección</p>
+                        <p className="text-xs" style={{ color: formData.text_color || "#924c14" }}>Subtítulo y descripción de la colección.</p>
+                    </div>
                 </div>
 
                 <div className="space-y-4 border-l pl-6">
@@ -494,11 +657,46 @@ export function MonthlyCookiesAdmin() {
             </div>
 
             <DialogFooter>
+                <Button type="button" variant="ghost" onClick={handleFormPreview} className="mr-auto border border-gray-200">
+                    <Eye className="w-4 h-4 mr-2" /> Previsualizar cambios
+                </Button>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
                 <Button onClick={handleSave} className="bg-[#930021]">Guardar Colección</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete confirm dialog */}
+      <AlertDialog open={!!collectionToDelete} onOpenChange={(open) => !open && setCollectionToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar colección?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará la colección "{collectionToDelete?.title}" y dejará de estar disponible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Sí, eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Preview modal */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-[95vw] w-full max-h-[95vh] h-full overflow-y-auto p-0 bg-transparent border-0 ring-0 shadow-none">
+          <DialogTitle className="sr-only">Previsualización de colección</DialogTitle>
+          <div className="bg-white sticky top-0 z-50 p-4 shadow flex justify-between items-center rounded-b-xl max-w-7xl mx-auto w-full">
+            <h3 className="font-bold text-gray-900">Previsualización en vivo</h3>
+            <Button variant="outline" onClick={() => setIsPreviewOpen(false)}><X className="w-4 h-4 mr-2" /> Cerrar</Button>
+          </div>
+          <div className="mt-4 pointer-events-none">
+            {/* Added pointer-events-none to prevent interactions like opening details modales in preview */}
+            {previewCollection && <MonthlyCookiesSection previewData={previewCollection} />}
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }

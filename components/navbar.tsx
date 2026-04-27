@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
@@ -37,7 +37,7 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
   ]
 
   return (
-    <header className="relative z-50 py-4 md:py-6 px-4 md:px-8 lg:px-16">
+    <header className="relative z-[100] px-4 md:px-8 lg:px-16 py-4 md:py-6 bg-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
             <Image

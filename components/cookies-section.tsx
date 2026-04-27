@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { CookieDetailModal } from "./cookie-detail-modal"
 import Link from "next/link"
 import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
+import { StampBadge } from "@/components/stamp-badge"
 
 interface CookieItem {
   id: string
@@ -18,6 +19,7 @@ interface CookieItem {
   in_carousel: boolean
   carousel_order: number
   tags: { id: string; name: string; color_hex: string }[]
+  badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
 }
 
 const COOKIE_IMAGE_SIZE = {
@@ -154,7 +156,7 @@ export function CookiesSection() {
     <section id="galletas" className="bg-[#FFF3E2] py-16 px-8 lg:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Nuestras galletas</h2>
+          <h2 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Mas vendidas</h2>
           <p className="text-[#930021]/80 text-sm">Haz clic para ver ingredientes y detalles</p>
         </div>
 
@@ -197,18 +199,12 @@ export function CookiesSection() {
                   onMouseLeave={() => setHoveredCookie(null)}
                 >
                   <div className="bg-white aspect-[4/5] rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors">
-                    {cookie.tags.length > 0 && (
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
-                        {cookie.tags.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag.id}
-                            className="px-2 py-0.5 rounded-full text-xs font-medium text-white backdrop-blur-sm shadow-sm"
-                            style={{ backgroundColor: tag.color_hex }}
-                          >
-                            {tag.name}
-                          </span>
-                        ))}
-                      </div>
+                    {cookie.badge?.visible && cookie.badge.text && (
+                      <StampBadge
+                        text={cookie.badge.text}
+                        bgColor={cookie.badge.bg_color}
+                        textColor={cookie.badge.text_color}
+                      />
                     )}
                     {mainImage ? (
                       <div className="relative w-full h-full">
@@ -284,7 +280,7 @@ export function CookiesSection() {
             href="/galletas"
             className="inline-flex items-center gap-2 px-8 py-4 bg-[#930021] text-[#F9E7AE] rounded-full font-medium hover:bg-[#7a001b] transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
           >
-            Ver todas las galletas
+            Ver galletas
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>

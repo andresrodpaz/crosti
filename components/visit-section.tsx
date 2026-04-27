@@ -1,6 +1,6 @@
 export function VisitSection() {
   return (
-    <section id="contacto" className="bg-[#FEFCF5] py-12 md:py-16 px-4 md:px-8 lg:px-16">
+    <section id="contacto" className="bg-[#F0DEC1] py-12 md:py-16 px-4 md:px-8 lg:px-16">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
@@ -42,16 +42,9 @@ export function VisitSection() {
               <h3 className="text-[#930021] font-bold text-base md:text-lg mb-2">Contacto</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <p className="text-[#930021]/80">+34 931 234 567</p>
-                <p className="text-[#930021]/80">hola@crosti.es</p>
+                <p className="text-[#930021]/80">info@crosti.es</p>
               </div>
-              <a
-                href="https://instagram.com/crosticookies"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 px-4 py-2 border border-[#930021] rounded-full text-[#930021] text-sm hover:bg-[#930021] hover:text-[#F9E7AE] transition-colors"
-              >
-                @crosticookies
-              </a>
+
             </div>
           </div>
 

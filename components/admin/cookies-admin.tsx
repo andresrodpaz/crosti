@@ -31,6 +31,13 @@ type CookieItem = {
   tags: Tag[]         // objetos { id, name, colorId, color_hex }
   isVisible: boolean
   showInCarousel: boolean
+  isFeatured: boolean
+  badge: {
+    text: string
+    bg_color: string
+    text_color: string
+    visible: boolean
+  }
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -69,6 +76,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
     mainImageIndex: 0,
     isVisible: true,
     showInCarousel: false,
+    isFeatured: false,
+    badge: {
+      text: "",
+      bg_color: "#930021",
+      text_color: "#F9E7AE",
+      visible: false,
+    },
   })
 
   const [confirmModal, setConfirmModal] = useState<{
@@ -157,6 +171,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
           tags: Array.isArray(cookie.tags) ? cookie.tags : [],
           isVisible: cookie.is_visible !== false,
           showInCarousel: cookie.in_carousel !== false,
+          isFeatured: cookie.is_featured === true,
+          badge: cookie.badge || {
+            text: "",
+            bg_color: "#930021",
+            text_color: "#F9E7AE",
+            visible: false,
+          },
         }))
 
         setCookies(transformedCookies)
@@ -219,6 +240,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       mainImageIndex: 0,
       isVisible: true,
       showInCarousel: false,
+      isFeatured: false,
+      badge: {
+        text: "",
+        bg_color: "#930021",
+        text_color: "#F9E7AE",
+        visible: false,
+      },
     })
     setShowModal(true)
   }
@@ -235,6 +263,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       mainImageIndex: cookie.mainImageIndex || 0,
       isVisible: cookie.isVisible ?? true,
       showInCarousel: cookie.showInCarousel ?? false,
+      isFeatured: cookie.isFeatured ?? false,
+      badge: cookie.badge || {
+        text: "",
+        bg_color: "#930021",
+        text_color: "#F9E7AE",
+        visible: false,
+      },
     })
     setShowModal(true)
   }
@@ -314,6 +349,11 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
         main_image_index: formData.mainImageIndex,
         is_visible: formData.isVisible,
         in_carousel: formData.showInCarousel,
+        is_featured: formData.isFeatured,
+        badge: {
+          ...formData.badge,
+          text: (formData.badge.text || "").slice(0, 20),
+        },
       }
 
       if (editingCookie) {
@@ -345,7 +385,9 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
                   mainImageIndex: formData.mainImageIndex,
                   isVisible: formData.isVisible,
                   showInCarousel: formData.showInCarousel,
+                  isFeatured: formData.isFeatured,
                   tags: updatedTagObjects,
+                  badge: formData.badge,
                 }
               : c,
           ),
@@ -400,6 +442,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       tags: cookie.tags || [],
       isVisible: cookie.is_visible,
       showInCarousel: cookie.in_carousel,
+      isFeatured: cookie.is_featured === true,
+      badge: cookie.badge || {
+        text: "",
+        bg_color: "#930021",
+        text_color: "#F9E7AE",
+        visible: false,
+      },
     }))
     setCookies(transformedCookies)
   }
@@ -535,8 +584,9 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       )}
       <div className="p-8">
         {loading && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-            <p className="text-gray-500">Cargando galletas...</p>
+          <div className="p-8 flex items-center justify-center min-h-[200px] bg-white rounded-2xl border border-gray-100 mb-6">
+            <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
+            <span className="sr-only">Cargando galletas...</span>
           </div>
         )}
         {!loading && (
@@ -853,6 +903,81 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
                   <span className="text-sm text-gray-700">
                     Mostrar en carrusel {carouselCount >= 8 && !formData.showInCarousel && "(máximo alcanzado)"}
                   </span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isFeatured}
+                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    className="w-4 h-4 text-[#930021] border-gray-300 rounded focus:ring-[#930021]"
+                  />
+                  <span className="text-sm text-gray-700">Galleta del mes</span>
+                </label>
+              </div>
+
+              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-medium text-gray-800">Etiqueta</p>
+                <input
+                  type="text"
+                  maxLength={20}
+                  value={formData.badge.text}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      badge: { ...formData.badge, text: e.target.value.slice(0, 20) },
+                    })
+                  }
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm"
+                  placeholder="Texto del badge (max 20)"
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={formData.badge.bg_color}
+                      onChange={(e) =>
+                        setFormData({ ...formData, badge: { ...formData.badge, bg_color: e.target.value } })
+                      }
+                      className="w-10 h-10 rounded"
+                    />
+                    <input
+                      type="text"
+                      value={formData.badge.bg_color}
+                      onChange={(e) =>
+                        setFormData({ ...formData, badge: { ...formData.badge, bg_color: e.target.value } })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={formData.badge.text_color}
+                      onChange={(e) =>
+                        setFormData({ ...formData, badge: { ...formData.badge, text_color: e.target.value } })
+                      }
+                      className="w-10 h-10 rounded"
+                    />
+                    <input
+                      type="text"
+                      value={formData.badge.text_color}
+                      onChange={(e) =>
+                        setFormData({ ...formData, badge: { ...formData.badge, text_color: e.target.value } })
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.badge.visible}
+                    onChange={(e) =>
+                      setFormData({ ...formData, badge: { ...formData.badge, visible: e.target.checked } })
+                    }
+                    className="w-4 h-4 text-[#930021] border-gray-300 rounded focus:ring-[#930021]"
+                  />
+                  <span className="text-sm text-gray-700">Mostrar badge</span>
                 </label>
               </div>
             </div>

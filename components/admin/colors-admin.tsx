@@ -14,6 +14,7 @@ type Color = {
 
 export function ColorsAdmin() {
   const [colors, setColors] = useState<Color[]>([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingColor, setEditingColor] = useState<Color | null>(null)
   const [formData, setFormData] = useState({
@@ -44,10 +45,12 @@ export function ColorsAdmin() {
 
     if (error) {
       console.error("[Message] Error loading colors:", error)
+      setLoading(false)
       return
     }
 
     setColors(data || [])
+    setLoading(false)
   }
 
   const openCreateModal = () => {
@@ -112,6 +115,14 @@ export function ColorsAdmin() {
         await loadColors()
       },
     })
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[200px]">
+        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

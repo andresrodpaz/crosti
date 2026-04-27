@@ -1,17 +1,22 @@
 import { CrostiHero } from "@/components/crosti-hero";
 import { CookiesSection } from "@/components/cookies-section";
-import { MonthlyCookiesSection } from "@/components/monthly-cookies-section";
 import { AboutSection } from "@/components/about-section";
 import { VisitSection } from "@/components/visit-section";
 import { CTASection } from "@/components/cta-section";
 import { Footer } from "@/components/footer";
 import { NewsBanner } from "@/components/news-banner";
+import { ReelsSection } from "@/components/reels-section";
+import { WaveDivider } from "@/components/wave-divider";
+import { FeaturedCookieHero } from "@/components/featured-cookie-hero";
+import { MonthlyCookiesSection } from "@/components/monthly-cookies-section";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   return (
     <main>
       <NewsBanner />
-      <div className="relative">
+      <div className="relative bg-[#F8E19A]">
+        <Navbar />
 
         {/* MacBook Air 13" (1280px) y Pro 14" (1512px) */}
         <svg
@@ -57,7 +62,7 @@ export default function Home() {
                C1665 698,1638 742,1728 728" />
         </svg>
 
-        {/* lg (1024px-1279px) — pantallas intermedias */}
+        {/* lg (1024px-1279px) */}
         <svg
           className="hidden lg:block xl:hidden absolute inset-0 w-full h-full pointer-events-none z-[100]"
           viewBox="0 0 1440 900"
@@ -79,34 +84,45 @@ export default function Home() {
                C1415 620,1390 660,1440 650" />
         </svg>
 
-        {/* mobile (<640px) */}
-        {/* <svg
-          className="block sm:hidden absolute inset-0 w-full h-full pointer-events-none z-[100]"
-          viewBox="0 0 390 844"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMid slice"
-          stroke="#9b001c"
-          fill="none"
-          strokeWidth="11"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M300 -50
-               C280 0,290 80,320 100
-               C330 110,345 95,340 80
-               C335 65,320 70,318 85
-               C315 200,350 220,380 240
-               C410 260,410 380,380 420
-               C360 450,380 500,390 560
-               C392 580,380 600,370 620" />
-        </svg> */}
-
         <CrostiHero />
       </div>
-      <CookiesSection />
+
+      {/* Wave: Hero (#F8E19A) → Galleta del Mes (#F5E6C8) */}
+      <div className="bg-[#F8E19A]">
+        <WaveDivider color="#f7efe8" />
+      </div>
+
+      {/* Galleta del Mes */}
+      <FeaturedCookieHero />
+
+      {/* Colecciones */}
       <MonthlyCookiesSection />
+
+      {/* Más Vendidas (bg #FFF3E2) */}
+      <CookiesSection />
+
+      {/* Wave: Más Vendidas (#FFF3E2) → Nosotros (#F9E7AE) */}
+      <div className="bg-[#FFF3E2]">
+        <WaveDivider color="#F9E7AE" />
+      </div>
       <AboutSection />
+
+      {/* Wave: Nosotros (#F9E7AE) → Reels (#FEFCF5) */}
+      <div className="bg-[#F9E7AE]">
+        <WaveDivider color="#FEFCF5" />
+      </div>
+      <ReelsSection />
+
+      {/* Wave: Reels (#FEFCF5) → Visítanos (#F0DEC1) */}
+      <div className="bg-[#FEFCF5]">
+        <WaveDivider color="#F0DEC1" />
+      </div>
       <VisitSection />
+
+      {/* Wave: Visítanos (#F0DEC1) → CTA */}
+      <div className="bg-[#F0DEC1]">
+        <WaveDivider color="#924C14" />
+      </div>
       <CTASection />
       <Footer />
     </main>

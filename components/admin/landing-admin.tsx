@@ -9,6 +9,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, Save, Plus, Trash2, Upload, Type, Palette } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  defaultSocialSettings,
+  getSocialSettingsFromSections,
+  upsertSocialSettingsInSections,
+} from "@/lib/social-settings"
 
 interface LandingConfig {
   id: string
@@ -181,6 +186,16 @@ export default function LandingAdmin({ onSuccess }: LandingAdminProps) {
         ...config.typography,
         [field]: value,
       },
+    })
+  }
+
+  const updateSocialSettings = (field: keyof typeof defaultSocialSettings, value: string) => {
+    if (!config) return
+    const current = getSocialSettingsFromSections(config.sections)
+    const updated = { ...current, [field]: value }
+    setConfig({
+      ...config,
+      sections: upsertSocialSettingsInSections(config.sections, updated),
     })
   }
 
@@ -395,6 +410,32 @@ export default function LandingAdmin({ onSuccess }: LandingAdminProps) {
                   </select>
                 </div>
               ))}
+            </div>
+          </Card>
+
+          <Card className="p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">Redes sociales</h2>
+            <div className="space-y-3">
+              <Input
+                value={getSocialSettingsFromSections(config.sections).instagram_url}
+                onChange={(e) => updateSocialSettings("instagram_url", e.target.value)}
+                placeholder="URL de Instagram"
+              />
+              <Input
+                value={getSocialSettingsFromSections(config.sections).pinterest_url}
+                onChange={(e) => updateSocialSettings("pinterest_url", e.target.value)}
+                placeholder="URL de Pinterest"
+              />
+              <Input
+                value={getSocialSettingsFromSections(config.sections).reels_title}
+                onChange={(e) => updateSocialSettings("reels_title", e.target.value)}
+                placeholder="Titulo seccion reels"
+              />
+              <Input
+                value={getSocialSettingsFromSections(config.sections).instagram_cta_text}
+                onChange={(e) => updateSocialSettings("instagram_cta_text", e.target.value)}
+                placeholder="Texto boton Instagram"
+              />
             </div>
           </Card>
         </div>

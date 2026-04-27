@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, X } from "lucide-react"
+import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, X, Star } from "lucide-react"
 import { CookiesAdmin } from "@/components/admin/cookies-admin"
 import { ColorsAdmin } from "@/components/admin/colors-admin"
 import { TagsAdmin } from "@/components/admin/tags-admin"
@@ -9,10 +9,11 @@ import { BannersAdmin } from "@/components/admin/banners-admin"
 import { MonthlyCookiesAdmin } from "@/components/admin/monthly-cookies-admin"
 import { BoxesAdmin } from "@/components/admin/boxes-admin"
 import { GuidesAdmin } from "@/components/admin/guides-admin"
+import { SingleMonthCookieAdmin } from "@/components/admin/single-month-cookie-admin"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
-type Section = "dashboard" | "cookies" | "monthly" | "colors" | "tags" | "orders" | "banners" | "boxes" | "guides"
+type Section = "dashboard" | "cookies" | "monthly" | "monthCookie" | "colors" | "tags" | "orders" | "banners" | "boxes" | "guides"
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
@@ -62,7 +63,8 @@ export default function AdminPage() {
     { id: "dashboard" as Section, label: "Dashboard", icon: LayoutDashboard },
     { id: "orders" as Section, label: "Pedidos", icon: ShoppingBag },
     { id: "cookies" as Section, label: "Galletas", icon: Cookie },
-    { id: "monthly" as Section, label: "Del Mes", icon: Calendar },
+    { id: "monthly" as Section, label: "Colecciones", icon: Calendar },
+    { id: "monthCookie" as Section, label: "Del Mes", icon: Star },
     { id: "boxes" as Section, label: "Cajas", icon: Package },
     { id: "banners" as Section, label: "Banners", icon: Sparkles },
     { id: "tags" as Section, label: "Etiquetas", icon: Tag },
@@ -211,6 +213,7 @@ export default function AdminPage() {
     />
   )}
           {activeSection === "monthly" && <MonthlyCookiesAdmin />}
+          {activeSection === "monthCookie" && <SingleMonthCookieAdmin />}
           {activeSection === "boxes" && <BoxesAdmin />}
           {activeSection === "banners" && <BannersAdmin />}
           {activeSection === "colors" && <ColorsAdmin />}
@@ -240,10 +243,17 @@ function DashboardSection({ onNavigate }: { onNavigate: (section: Section) => vo
     },
     {
       id: "monthly" as Section,
-      title: "Galleta del Mes",
-      description: "Destaca colecciones especiales por temporada",
+      title: "Colecciones",
+      description: "Gestiona colecciones destacadas por temporada",
       icon: Calendar,
       color: "bg-red-500",
+    },
+    {
+      id: "monthCookie" as Section,
+      title: "Del Mes",
+      description: "Selecciona una unica galleta del mes",
+      icon: Star,
+      color: "bg-pink-500",
     },
     {
       id: "boxes" as Section,

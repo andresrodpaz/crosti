@@ -5,6 +5,7 @@ import { Search, Filter } from "lucide-react"
 import { CookieDetailModal } from "./cookie-detail-modal"
 import Link from "next/link"
 import Image from "next/image"
+import { StampBadge } from "@/components/stamp-badge"
 
 interface CookieItem {
   id: string
@@ -16,6 +17,7 @@ interface CookieItem {
   main_image_index: number
   is_visible: boolean
   tags: { id: string; name: string; color_hex: string }[]
+  badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
 }
 
 interface Tag {
@@ -184,23 +186,12 @@ export function CookiesCatalog({ initialCookies, initialTags }: Props) {
               <div className="
                 bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors
                 ">
-                {cookie.tags.length > 0 && (
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
-                    {cookie.tags.slice(0, 2).map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="px-2 py-0.5 rounded-full text-xs font-medium text-white backdrop-blur-sm shadow-sm"
-                        style={{ backgroundColor: tag.color_hex }}
-                      >
-                        {tag.name}
-                      </span>
-                    ))}
-                    {cookie.tags.length > 2 && (
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800/70 text-white backdrop-blur-sm">
-                        +{cookie.tags.length - 2}
-                      </span>
-                    )}
-                  </div>
+                {cookie.badge?.visible && cookie.badge.text && (
+                  <StampBadge
+                    text={cookie.badge.text}
+                    bgColor={cookie.badge.bg_color}
+                    textColor={cookie.badge.text_color}
+                  />
                 )}
                 {mainImage ? (
                   <div className="relative w-full h-full">

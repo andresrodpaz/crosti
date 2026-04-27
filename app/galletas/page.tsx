@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
 import Image from "next/image"
 import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
+import { StampBadge } from "@/components/stamp-badge"
 
 interface CookieItem {
   id: string
@@ -19,6 +20,8 @@ interface CookieItem {
   main_image_index: number
   is_visible: boolean
   tags: { id: string; name: string; color_hex: string }[]
+  is_featured?: boolean
+  badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
 }
 
 const getHoverImage = (cookie: CookieItem) => {
@@ -102,6 +105,9 @@ export default function GalletasPage() {
   const toggleTagFilter = (tagId: string) => {
     setSelectedTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]))
   }
+
+  const featuredCookies = filteredCookies.filter((cookie) => cookie.is_featured)
+  const regularCookies = filteredCookies.filter((cookie) => !cookie.is_featured)
 
   return (
     <div className="min-h-screen bg-[#FFF3E2] flex flex-col">
@@ -190,6 +196,68 @@ export default function GalletasPage() {
           {filteredCookies.length} {filteredCookies.length === 1 ? "galleta encontrada" : "galletas encontradas"}
         </p> */}
 
+        {featuredCookies.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#930021] mb-6">Galletas del mes</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {featuredCookies.map((cookie) => {
+                const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
+                const hoverImage = getHoverImage(cookie)
+                const isVisible = visibleCards.has(cookie.id)
+                const isHovered = hoveredCookie === cookie.id
+                const hasMultipleImages = (cookie.image_urls?.length || 0) > 1
+
+                return (
+                  <div
+                    key={`featured-${cookie.id}`}
+                    className={`rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group ${
+                      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                    }`}
+                    onClick={() => setSelectedCookie(cookie)}
+                    onMouseEnter={() => setHoveredCookie(cookie.id)}
+                    onMouseLeave={() => setHoveredCookie(null)}
+                  >
+                    <div className="bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors">
+                      <StampBadge
+                        text={cookie.badge?.text || "Del mes"}
+                        bgColor={cookie.badge?.bg_color}
+                        textColor={cookie.badge?.text_color}
+                      />
+                      {mainImage ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={mainImage || "/placeholder.svg"}
+                            alt={cookie.name}
+                            className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
+                              isHovered && hasMultipleImages ? "opacity-0 scale-105" : "opacity-100 scale-100"
+                            }`}
+                            loading="lazy"
+                          />
+                          {hasMultipleImages && (
+                            <img
+                              src={hoverImage || "/placeholder.svg"}
+                              alt={`${cookie.name} - alternativa`}
+                              className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
+                                isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                              }`}
+                              loading="lazy"
+                            />
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="bg-[#F5DFA0] p-6 rounded-b-3xl group-hover:bg-[#F9E7AE] transition-colors">
+                      <h3 className="text-[#930021] font-semibold text-center mb-1 text-sm">{cookie.name}</h3>
+                      <p className="text-[#930021] font-bold text-center mb-4 text-lg">{cookie.price.toFixed(2)}€</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        <h2 className="text-3xl md:text-4xl font-bold text-[#930021] mb-6">Todas las galletas</h2>
         {/* Cookie Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
@@ -199,7 +267,7 @@ export default function GalletasPage() {
               gridClass="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             />
           ) : (
-            filteredCookies.map((cookie) => {
+            regularCookies.map((cookie) => {
             const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
             const hoverImage = getHoverImage(cookie)
             const isVisible = visibleCards.has(cookie.id)
@@ -220,23 +288,12 @@ export default function GalletasPage() {
                 <div className="
                 bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors
                 ">
-                  {cookie.tags.length > 0 && (
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
-                      {cookie.tags.slice(0, 2).map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="px-2 py-0.5 rounded-full text-xs font-medium text-white backdrop-blur-sm shadow-sm"
-                          style={{ backgroundColor: tag.color_hex }}
-                        >
-                          {tag.name}
-                        </span>
-                      ))}
-                      {cookie.tags.length > 2 && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800/70 text-white backdrop-blur-sm">
-                          +{cookie.tags.length - 2}
-                        </span>
-                      )}
-                    </div>
+                  {cookie.badge?.visible && cookie.badge.text && (
+                    <StampBadge
+                      text={cookie.badge.text}
+                      bgColor={cookie.badge.bg_color}
+                      textColor={cookie.badge.text_color}
+                    />
                   )}
                   {mainImage ? (
                     <div className="relative w-full h-full">

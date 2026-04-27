@@ -74,6 +74,7 @@ export async function GET(request: Request) {
           image_urls: imageUrls,
           main_image_index: cookie.main_image_index || 0,
           tags,
+          featured_description: cookie.featured_description || "",
           // remove raw relation data
           cookie_tags: undefined
         }
@@ -81,7 +82,8 @@ export async function GET(request: Request) {
       
       return NextResponse.json(formattedCookies, {
         headers: {
-            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+            // Desactivamos cache temporalmente para evitar reportes falsos de "no se actualiza"
+            'Cache-Control': 'no-store, max-age=0'
         }
       })
     }

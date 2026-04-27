@@ -20,6 +20,7 @@ type Color = {
 export function TagsAdmin() {
   const [tags, setTags] = useState<TagType[]>([])
   const [colors, setColors] = useState<Color[]>([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingTag, setEditingTag] = useState<TagType | null>(null)
   const [formData, setFormData] = useState({
@@ -38,10 +39,12 @@ export function TagsAdmin() {
 
     if (error) {
       console.error("[Message] Error loading tags:", error)
+      setLoading(false)
       return
     }
 
     setTags(data || [])
+    setLoading(false)
   }
 
   const loadColors = async () => {
@@ -121,6 +124,14 @@ export function TagsAdmin() {
       console.error("[Message] Error deleting tag:", error)
       alert("Error al eliminar la etiqueta: " + (error as any).message)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[200px]">
+        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

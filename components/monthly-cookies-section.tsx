@@ -5,46 +5,58 @@ import { createClient } from "@/lib/supabase/client"
 import { ArrowRight, Star, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { CookieSkeletonCard, CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
+import { StampBadge } from "@/components/stamp-badge"
 
-interface CollectionItem {
+export interface CollectionItem {
   cookie: {
     id: string
     name: string
     description: string
     price: number
     image_url: string
+      badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
     tags: { name: string; color_hex: string }[]
   }
   is_hero: boolean
   custom_tag?: string
 }
 
-interface MonthlyCollection {
+export interface MonthlyCollection {
   title: string
   subtitle: string
   description?: string
   bg_color: string
+  text_color?: string
+  title_color?: string
   items: CollectionItem[]
 }
 
 import { CookieDetailModal, type CookieItem } from "@/components/cookie-detail-modal"
 
-export function MonthlyCookiesSection() {
+export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCollection | null }) {
   const [collection, setCollection] = useState<MonthlyCollection | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedCookie, setSelectedCookie] = useState<CookieItem | null>(null)
 
   useEffect(() => {
+    if (previewData) {
+      setCollection(previewData)
+      setLoading(false)
+      return
+    }
+
     async function loadActiveCollection() {
       try {
         const supabase = createClient()
         
-        // 1. Get active collection
+        // 1. Get active collection — SECCION_GALLETA_DEL_MES has is_active=false so it's naturally excluded
         const { data: collectionData, error } = await supabase
           .from("monthly_collections")
           .select("*")
-          .eq("status", "active")
-          .single()
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
         if (error || !collectionData) {
           console.log("MonthlyCookiesSection: No active collection found", { error, collectionData })
@@ -66,7 +78,6 @@ export function MonthlyCookiesSection() {
               name,
               description,
               price,
-              image_urls,
               image_url
             )
           `)
@@ -94,9 +105,8 @@ export function MonthlyCookiesSection() {
                 name: item.cookie.name,
                 description: item.cookie.description,
                 price: item.cookie.price,
-                image_url: Array.isArray(item.cookie.image_urls) 
-                  ? item.cookie.image_urls[0] 
-                  : (JSON.parse(item.cookie.image_urls as unknown as string)?.[0] || item.cookie.image_url || ""),
+                image_url: item.cookie.image_url || "",
+                badge: undefined,
                 tags: [] // Simplified for this view
               }
             }))
@@ -106,6 +116,8 @@ export function MonthlyCookiesSection() {
               subtitle: collectionData.subtitle,
               description: collectionData.description,
               bg_color: collectionData.bg_color || "#FEFCF5",
+              text_color: collectionData.text_color || "#924c14",
+              title_color: collectionData.title_color || "#930021",
               items
             })
         }
@@ -116,8 +128,10 @@ export function MonthlyCookiesSection() {
       }
     }
 
-    loadActiveCollection()
-  }, [])
+    if (!previewData) {
+      loadActiveCollection()
+    }
+  }, [previewData])
 
   if (loading) {
     return (
@@ -165,14 +179,20 @@ export function MonthlyCookiesSection() {
           <span className="inline-block py-1 px-3 rounded-full bg-[#930021]/10 text-[#930021] text-sm font-semibold tracking-wider mb-4">
             EDICIÓN LIMITADA
           </span>
-          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold text-[#930021] mb-6">
+          <h2
+            className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+            style={{ color: collection.title_color || "#930021" }}
+          >
             {collection.title}
           </h2>
-          <p className="text-xl md:text-2xl text-[#924c14] font-medium max-w-2xl mx-auto mb-4">
+          <p
+            className="text-xl md:text-2xl font-medium max-w-2xl mx-auto mb-4"
+            style={{ color: collection.text_color || "#924c14" }}
+          >
             {collection.subtitle}
           </p>
           {collection.description && (
-             <p className="text-lg text-[#6B5B52] max-w-3xl mx-auto leading-relaxed">
+             <p className="text-lg max-w-3xl mx-auto leading-relaxed" style={{ color: collection.text_color ? `${collection.text_color}cc` : "#6B5B52" }}>
                {collection.description}
              </p>
           )}
@@ -193,10 +213,13 @@ export function MonthlyCookiesSection() {
                   {/* mobile stacking: text then price/button */}
                   <div className="flex flex-col gap-6 md:hidden">
                     <div className="max-w-2xl">
-                      {heroItem.custom_tag && (
-                        <span className="inline-block px-4 py-1.5 bg-[#930021] text-[#F8E19A] text-xs font-bold uppercase tracking-widest rounded-full mb-4 shadow-lg">
-                          {heroItem.custom_tag}
-                        </span>
+                      {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                        <StampBadge
+                          text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
+                          bgColor={heroItem.cookie.badge?.bg_color}
+                          textColor={heroItem.cookie.badge?.text_color}
+                          className="!top-0 !right-0"
+                        />
                       )}
                       <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
                       <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
@@ -214,10 +237,13 @@ export function MonthlyCookiesSection() {
                   {/* desktop layout */}
                   <div className="hidden md:flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
                     <div className="max-w-2xl">
-                      {heroItem.custom_tag && (
-                        <span className="inline-block px-4 py-1.5 bg-[#930021] text-[#F8E19A] text-xs font-bold uppercase tracking-widest rounded-full mb-4 shadow-lg">
-                          {heroItem.custom_tag}
-                        </span>
+                      {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                        <StampBadge
+                          text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
+                          bgColor={heroItem.cookie.badge?.bg_color}
+                          textColor={heroItem.cookie.badge?.text_color}
+                          className="!top-0 !right-0"
+                        />
                       )}
                       <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
                       <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
@@ -252,10 +278,13 @@ export function MonthlyCookiesSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
 
                 <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white">
-                  {heroItem.custom_tag && (
-                    <span className="inline-block px-3 py-1 bg-[#930021] text-white text-xs font-bold uppercase tracking-wider rounded-lg mb-3 shadow-lg">
-                      {heroItem.custom_tag}
-                    </span>
+                  {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                    <StampBadge
+                      text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
+                      bgColor={heroItem.cookie.badge?.bg_color}
+                      textColor={heroItem.cookie.badge?.text_color}
+                      className="!top-2 !right-2"
+                    />
                   )}
                   <h3 className="text-3xl md:text-4xl font-bold mb-3">{heroItem.cookie.name}</h3>
                   <p className="text-white/90 mb-6 text-lg max-w-md line-clamp-2">

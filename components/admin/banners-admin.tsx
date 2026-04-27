@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
 
@@ -48,7 +49,7 @@ export function BannersAdmin() {
 
   async function loadBanners() {
     try {
-      const res = await fetch("/api/banners")
+      const res = await fetch("/api/banners?all=true")
       if (res.ok) {
         const data = await res.json()
         setBanners(data)
@@ -57,6 +58,13 @@ export function BannersAdmin() {
       console.error("Error loading banners:", error)
     }
     setIsLoading(false)
+  }
+
+  const handleDialogChange = (open: boolean) => {
+    setIsDialogOpen(open)
+    if (!open) {
+      setEditingBanner(null)
+    }
   }
 
   const openNewBanner = () => {
@@ -225,8 +233,9 @@ export function BannersAdmin() {
         )}
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-md">
+          <DialogDescription className="sr-only">Formulario para crear o editar banner</DialogDescription>
           <DialogHeader>
             <DialogTitle>{editingBanner ? "Editar Banner" : "Nuevo Banner"}</DialogTitle>
           </DialogHeader>

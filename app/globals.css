@@ -469,4 +469,10 @@
   .scrollbar-elegant::-webkit-scrollbar-thumb:hover {
     background: #930021;
   }
+
+  .wave-divider svg {
+    width: 100%;
+    display: block;
+    margin-bottom: -2px;
+  }
 }
