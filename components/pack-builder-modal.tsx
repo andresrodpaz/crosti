@@ -176,13 +176,13 @@ export function PackBuilderModal({ open, onClose, cookies }: PackBuilderModalPro
           </div>
 
           <Button
-            className="w-full h-12 bg-[#930021] hover:bg-[#930021]/90 text-[#930021] font-bold text-lg"
+            className="w-full h-12 bg-[#930021] hover:bg-[#7a001b] text-white font-bold text-lg shadow-lg shadow-red-900/20 transition-all duration-200"
             onClick={handleAddToCart}
             disabled={totalSelected !== selectedSize}
           >
             {totalSelected === selectedSize
-              ? `Añadir Pack al Carrito - €${currentPack.price}`
-              : `Selecciona ${selectedSize - totalSelected} galletas más`}
+              ? `🛒 Añadir Pack al Carrito — €${currentPack.price}`
+              : `Selecciona ${selectedSize - totalSelected} galleta${selectedSize - totalSelected !== 1 ? "s" : ""} más`}
           </Button>
         </div>
       </DialogContent>

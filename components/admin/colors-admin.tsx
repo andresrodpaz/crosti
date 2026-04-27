@@ -21,6 +21,8 @@ export function ColorsAdmin() {
     hex: "#22C55E",
     name: "",
   })
+  // Detect at runtime whether the DB uses 'name' or 'alias' column
+  const [nameCol, setNameCol] = useState<"name" | "alias">("name")
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean
     title: string
@@ -49,7 +51,12 @@ export function ColorsAdmin() {
       return
     }
 
-    setColors(data || [])
+    // Detect which column the live DB actually has: 'name' or 'alias'
+    if (data && data.length > 0) {
+      const col = "alias" in data[0] && !("name" in data[0]) ? "alias" : "name"
+      setNameCol(col)
+    }
+    setColors((data || []).map((c: any) => ({ id: c.id, hex: c.hex, name: c.name ?? c.alias ?? "" })))
     setLoading(false)
   }
 
@@ -81,18 +88,26 @@ export function ColorsAdmin() {
       onConfirm: async () => {
         const supabase = createClient()
 
-        if (editingColor) {
-          const { error } = await supabase
-            .from("colors")
-            .update({ hex: formData.hex, name: formData.name })
-            .eq("id", editingColor.id)
-
-          if (error) throw error
-        } else {
-          const { error } = await supabase.from("colors").insert([{ hex: formData.hex, name: formData.name }])
-
-          if (error) throw error
+        // Helper: try with detected col, fallback to the other one if it fails
+        const tryWrite = async (col: "name" | "alias") => {
+          const payload = { hex: formData.hex, [col]: formData.name }
+          if (editingColor) {
+            const { error } = await supabase.from("colors").update(payload).eq("id", editingColor.id)
+            return error
+          } else {
+            const { error } = await supabase.from("colors").insert([payload])
+            return error
+          }
         }
+
+        let err = await tryWrite(nameCol)
+        if (err) {
+          // Retry with the other column name
+          const fallback = nameCol === "name" ? "alias" : "name"
+          err = await tryWrite(fallback)
+          if (!err) setNameCol(fallback) // remember for next time
+        }
+        if (err) throw err
 
         await loadColors()
         setShowModal(false)
@@ -216,14 +231,18 @@ export function ColorsAdmin() {
                 <div className="flex gap-3">
                   <input
                     type="color"
-                    value={formData.hex}
+                    value={formData.hex && /^#[0-9A-Fa-f]{6}$/.test(formData.hex) ? formData.hex : "#22C55E"}
                     onChange={(e) => setFormData({ ...formData, hex: e.target.value })}
                     className="w-14 h-10 rounded-lg cursor-pointer border border-gray-200"
                   />
                   <input
                     type="text"
                     value={formData.hex}
-                    onChange={(e) => setFormData({ ...formData, hex: e.target.value })}
+                    onChange={(e) => {
+                      // Strip any leading #s then re-add exactly one
+                      const raw = e.target.value.replace(/^#+/, "")
+                      setFormData({ ...formData, hex: raw ? `#${raw}` : "#" })
+                    }}
                     className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#930021]/20 focus:border-[#930021] text-sm font-mono"
                     placeholder="#000000"
                     pattern="^#[0-9A-Fa-f]{6}$"

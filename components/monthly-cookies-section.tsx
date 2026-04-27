@@ -78,24 +78,20 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
               name,
               description,
               price,
-              image_url
+              image_urls
             )
           `)
           .eq("collection_id", collectionData.id)
           .order("display_order")
 
         if (itemsData) {
-           // Fetch tags for these cookies
-           const cookieIds = itemsData.map((i: any) => i.cookie.id)
-           const { data: tagsData } = await supabase
-            .from("cookie_tags")
-            .select("cookie_id, tags(name, color_id)")
-             .in("cookie_id", cookieIds)
+            // Helper: extract first image from image_urls (stored as JSON array)
+            const getFirstImage = (raw: any): string => {
+              if (!raw) return ""
+              if (Array.isArray(raw)) return raw[0] || ""
+              try { return JSON.parse(raw)?.[0] || "" } catch { return "" }
+            }
 
-             // Need to fetch color hexes too if they are separate, but let's assume simple tag join for now or ignore colors if complex
-             // Actually existing code uses a separate colors table. Let's simplify and just show names or skip tags for now to avoid complex joins in client
-             // OR better: fetch tags properly. 
-             
             // Map items
             const items: CollectionItem[] = itemsData.map((item: any) => ({
               is_hero: item.is_hero,
@@ -105,9 +101,9 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                 name: item.cookie.name,
                 description: item.cookie.description,
                 price: item.cookie.price,
-                image_url: item.cookie.image_url || "",
+                image_url: getFirstImage(item.cookie.image_urls),
                 badge: undefined,
-                tags: [] // Simplified for this view
+                tags: []
               }
             }))
 
@@ -304,44 +300,46 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
             </div>
 
             {/* Side Grid */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 flex flex-col gap-4">
               {otherItems.map((item) => (
                 <div 
                   key={item.cookie.id} 
                   onClick={() => setSelectedCookie(item.cookie as any)}
-                  className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex gap-5 items-center group cursor-pointer border border-transparent hover:border-[#930021]/20"
+                  className="group cursor-pointer flex gap-4 items-center bg-white/70 backdrop-blur-sm border border-white hover:border-[#930021]/30 rounded-2xl p-3 shadow-sm hover:shadow-lg transition-all duration-300"
                 >
-                  <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
                     <img
                       src={item.cookie.image_url || "/placeholder.svg"}
                       alt={item.cookie.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                  </div>
-                  <div className="flex-1">
                     {item.custom_tag && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#930021] bg-[#930021]/10 px-2 py-0.5 rounded-md mb-1 inline-block">
-                        {item.custom_tag}
-                      </span>
+                      <div className="absolute top-1 left-1">
+                        <span className="text-[9px] font-bold uppercase leading-none tracking-wide text-white bg-[#930021] px-1.5 py-0.5 rounded-md">
+                          {item.custom_tag}
+                        </span>
+                      </div>
                     )}
-                    <h4 className="font-bold text-lg text-gray-900 group-hover:text-[#930021] transition-colors line-clamp-1">
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-base text-gray-900 group-hover:text-[#930021] transition-colors truncate">
                       {item.cookie.name}
                     </h4>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-2">{item.cookie.description}</p>
-                    <div className="flex items-center justify-between">
-                       <span className="font-bold text-[#924c14]">{item.cookie.price.toFixed(2)}€</span>
-                       <span className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#930021] group-hover:text-white transition-colors">
-                           <ArrowRight className="w-4 h-4" />
-                       </span>
-                    </div>
+                    <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 mb-2 leading-relaxed">{item.cookie.description}</p>
+                    <span className="text-sm font-bold text-[#924c14]">{item.cookie.price.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 group-hover:bg-[#930021] flex items-center justify-center transition-colors">
+                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
                   </div>
                 </div>
               ))}
 
-              <Link href="/galletas" className="block w-full py-4 text-center text-gray-500 hover:text-[#930021] font-medium transition-colors border-t border-gray-200 mt-4 group">
-                <span className="inline-flex items-center gap-2">
-                  Ver toda la colección <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </span>
+              <Link 
+                href="/galletas" 
+                className="flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border-2 border-dashed border-gray-200 text-gray-500 hover:border-[#930021]/40 hover:text-[#930021] font-medium transition-all duration-200 group mt-2"
+              >
+                Ver toda la colección
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>

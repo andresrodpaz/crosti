@@ -14,20 +14,12 @@ export const metadata: Metadata = {
   generator: "Crosti",
   icons: {
     icon: [
-      {
-        url: "/favicon-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/favicon-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/favicon-32x32.png",
-        type: "image/svg+xml",
-      },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
   },
 }
 
