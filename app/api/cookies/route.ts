@@ -38,20 +38,6 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("[Message] Database error fetching cookies:", error)
-
-      // timeout fallback: return mock data instead de 500
-      if (error.code === "57014") {
-        const { getCookies } = await import("@/lib/cookies-store")
-        const mockCookies = getCookies().map((c) => ({
-          ...c,
-          image_urls: c.imageUrl ? [c.imageUrl] : [],
-          tags: [],
-          is_visible: true,
-          main_image_index: 0,
-        }))
-        return NextResponse.json(mockCookies)
-      }
-
       return NextResponse.json({ error: error.message, cookies: [] }, { status: 500 })
     }
 
@@ -92,17 +78,6 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("[Message] Unexpected error in cookies API:", error)
     
-    // FALLBACK: Use mock data if DB fails (e.g. timeout)
-    console.log("[Message] ⚠️ Using fallback mock data due to DB error")
-    const { getCookies } = await import("@/lib/cookies-store")
-    const mockCookies = getCookies().map(c => ({
-      ...c,
-      image_urls: c.imageUrl ? [c.imageUrl] : [],
-      tags: [],
-      is_visible: true,
-      main_image_index: 0
-    }))
-    
-    return NextResponse.json(mockCookies)
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
   }
 }

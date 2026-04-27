@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 
-// Galería mixta: videos e imágenes alternados
 const GALLERY_ITEMS = [
   { type: "video", src: "/reels/crosti-reel-1.mp4", caption: "Irresistibles" },
   { type: "image", src: "/reels/crosti-img-1.jpeg", caption: "Recién horneadas" },
@@ -28,20 +27,17 @@ export function ReelsSection() {
   const [dragStart, setDragStart] = useState({ x: 0, scrollLeft: 0 })
   const [visible, setVisible] = useState(false)
 
-  // Fade-in al montar
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100)
     return () => clearTimeout(t)
   }, [])
 
-  // Autoplay todos los vídeos simultáneamente
   useEffect(() => {
     videoRefs.current.forEach((v) => {
       if (v) { v.muted = true; v.play().catch(() => null) }
     })
   }, [])
 
-  // Auto-scroll loop
   useEffect(() => {
     let animationFrameId: number
     const scrollContainer = scrollRef.current
@@ -50,19 +46,17 @@ export function ReelsSection() {
     const scrollStep = () => {
       if (!isDragging && scrollContainer) {
         scrollContainer.scrollLeft += 0.8
-        // Si llega al final o cerca, reiniciamos suavemente al inicio o dejamos que el usuario lo mueva
         if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth - 5) {
-            scrollContainer.scrollLeft = 0 // loop basic (puede modificarse si se quiere scroll infinito clonando)
+          scrollContainer.scrollLeft = 0
         }
       }
       animationFrameId = requestAnimationFrame(scrollStep)
     }
-    
+
     animationFrameId = requestAnimationFrame(scrollStep)
     return () => cancelAnimationFrame(animationFrameId)
   }, [isDragging])
 
-  // Mouse-drag scroll
   const onMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return
     setIsDragging(true)
@@ -71,7 +65,7 @@ export function ReelsSection() {
   const onMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !scrollRef.current) return
     e.preventDefault()
-    const x    = e.pageX - scrollRef.current.offsetLeft
+    const x = e.pageX - scrollRef.current.offsetLeft
     const walk = (x - dragStart.x) * 1.5
     scrollRef.current.scrollLeft = dragStart.scrollLeft - walk
   }
@@ -80,20 +74,40 @@ export function ReelsSection() {
   return (
     <section
       id="reels"
-      className="bg-[#FEFCF5] py-20 overflow-hidden"
+      className="bg-[#FEFCF5] overflow-hidden
+        py-10
+        sm:py-14
+        md:py-16
+        lg:py-20
+      "
       style={{ opacity: visible ? 1 : 0, transition: "opacity 0.6s ease" }}
     >
       {/* ── HEADER ── */}
-      <div className="px-6 md:px-12 lg:px-20 mb-12 text-center">
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#930021] leading-tight">
-          Crosti en imágenes
+      <div className="mb-8 text-center
+        px-4
+        sm:px-8 sm:mb-10
+        md:px-12 md:mb-12
+        lg:px-20
+      ">
+        <h2 className="font-bold text-[#930021] leading-tight
+          text-3xl
+          sm:text-4xl
+          md:text-5xl
+          lg:text-6xl
+        ">
+          Crosti Vibes
         </h2>
       </div>
 
-      {/* ── CARRUSEL HORIZONTAL ── */}
+      {/* ── CARRUSEL ── */}
       <div
         ref={scrollRef}
-        className="flex gap-4 md:gap-5 overflow-x-auto pb-6 px-6 md:px-12 lg:px-20 cursor-grab active:cursor-grabbing select-none"
+        className="flex overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none
+          gap-3 px-4
+          sm:gap-4 sm:px-8
+          md:gap-5 md:px-12
+          lg:px-20
+        "
         style={{
           scrollBehavior: "auto",
           WebkitOverflowScrolling: "touch",
@@ -108,13 +122,14 @@ export function ReelsSection() {
         {GALLERY_ITEMS.map((item, idx) => (
           <div
             key={idx}
-            className="group relative shrink-0 rounded-3xl overflow-hidden bg-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+            className="group relative shrink-0 rounded-2xl overflow-hidden bg-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]"
             style={{
               scrollSnapAlign: "start",
-              minWidth: "clamp(200px, 28vw, 320px)",
-              height: "clamp(340px, 65vh, 580px)",
               opacity: 0,
               animation: `fadeUp 0.5s ease forwards ${idx * 0.06}s`,
+              // Safari border-radius + transform fix
+              WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+              transform: "translateZ(0)",
             }}
           >
             {item.type === "image" ? (
@@ -136,16 +151,14 @@ export function ReelsSection() {
               />
             )}
 
-            {/* Gradient oscuro sutil inferior */}
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-            {/* Overlay central de Instagram / Premium Glow - Aparece en hover */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/20 backdrop-blur-[2px] pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.3)] transform scale-50 group-hover:scale-100 transition-transform duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)">
+              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.3)] transform scale-50 group-hover:scale-100 transition-transform duration-500">
                 <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
               </div>
             </div>
@@ -153,15 +166,23 @@ export function ReelsSection() {
         ))}
       </div>
 
-      {/* ── CTA CENTRADO ABAJO ── */}
-      <div className="mt-12 flex justify-center">
+      {/* ── CTA ── */}
+      <div className="flex justify-center
+        mt-8
+        sm:mt-10
+        md:mt-12
+      ">
         <a
           href="https://www.instagram.com/crosticookies"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#930021] text-[#F8E19A] font-bold text-lg hover:bg-[#7a001b] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+          className="inline-flex items-center gap-2 rounded-full bg-[#930021] text-[#F8E19A] font-bold hover:bg-[#7a001b] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg
+            px-6 py-3 text-base
+            sm:px-7 sm:py-3.5 sm:text-base
+            md:px-8 md:py-4 md:text-lg
+          "
         >
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -170,16 +191,95 @@ export function ReelsSection() {
         </a>
       </div>
 
-      {/* Ocultar scrollbar nativo (Webkit) */}
       <style>{`.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
-
-      {/* Keyframes */}
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* Tamaños de tarjeta por breakpoint */
+
+        /* iPhone SE / pequeños (< 390px) */
+        @media (min-width: 0px) {
+          #reels .shrink-0 {
+            min-width: 150px !important;
+            width: 150px !important;
+            height: 265px !important;
+            flex: 0 0 150px !important;
+          }
+        }
+
+        /* iPhone 14 / Android normal (390px - 430px) */
+        @media (min-width: 390px) {
+          #reels .shrink-0 {
+            min-width: 165px !important;
+            width: 165px !important;
+            height: 290px !important;
+            flex: 0 0 165px !important;
+          }
+        }
+
+        /* iPhone 14 Pro Max / grandes (430px+) */
+        @media (min-width: 430px) {
+          #reels .shrink-0 {
+            min-width: 175px !important;
+            width: 175px !important;
+            height: 310px !important;
+            flex: 0 0 175px !important;
+          }
+        }
+
+        /* iPad mini / tablet portrait (768px) */
+        @media (min-width: 768px) {
+          #reels .shrink-0 {
+            min-width: 220px !important;
+            width: 220px !important;
+            height: 380px !important;
+            flex: 0 0 220px !important;
+          }
+        }
+
+        /* iPad Pro / tablet landscape (1024px) */
+        @media (min-width: 1024px) {
+          #reels .shrink-0 {
+            min-width: 260px !important;
+            width: 260px !important;
+            height: 450px !important;
+            flex: 0 0 260px !important;
+          }
+        }
+
+        /* MacBook 13" / laptop (1280px) */
+        @media (min-width: 1280px) {
+          #reels .shrink-0 {
+            min-width: 280px !important;
+            width: 280px !important;
+            height: 490px !important;
+            flex: 0 0 280px !important;
+          }
+        }
+
+        /* MacBook 16" / desktop (1440px+) */
+        @media (min-width: 1440px) {
+          #reels .shrink-0 {
+            min-width: 300px !important;
+            width: 300px !important;
+            height: 530px !important;
+            flex: 0 0 300px !important;
+          }
+        }
+
+        /* 4K / ultrawide (1920px+) */
+        @media (min-width: 1920px) {
+          #reels .shrink-0 {
+            min-width: 320px !important;
+            width: 320px !important;
+            height: 570px !important;
+            flex: 0 0 320px !important;
+          }
+        }
       `}</style>
-    </section>
+    </section >
   )
 }

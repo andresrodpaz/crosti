@@ -14,8 +14,11 @@ export interface CollectionItem {
     description: string
     price: number
     image_url: string
+    image_urls?: string[]
+    ingredients?: string[]
+    main_image_index?: number
       badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
-    tags: { name: string; color_hex: string }[]
+    tags: { id?: string; name: string; color_hex: string }[]
   }
   is_hero: boolean
   custom_tag?: string
@@ -78,34 +81,41 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
               name,
               description,
               price,
-              image_urls
+              image_urls,
+              ingredients,
+              main_image_index
             )
           `)
           .eq("collection_id", collectionData.id)
           .order("display_order")
 
         if (itemsData) {
-            // Helper: extract first image from image_urls (stored as JSON array)
-            const getFirstImage = (raw: any): string => {
-              if (!raw) return ""
-              if (Array.isArray(raw)) return raw[0] || ""
-              try { return JSON.parse(raw)?.[0] || "" } catch { return "" }
+            // Helper to ensure image_urls is an array of strings
+            const parseImageUrls = (raw: any): string[] => {
+              if (Array.isArray(raw)) return raw;
+              try { return JSON.parse(raw) || []; } catch { return []; }
             }
 
             // Map items
-            const items: CollectionItem[] = itemsData.map((item: any) => ({
-              is_hero: item.is_hero,
-              custom_tag: item.custom_tag,
-              cookie: {
-                id: item.cookie.id,
-                name: item.cookie.name,
-                description: item.cookie.description,
-                price: item.cookie.price,
-                image_url: getFirstImage(item.cookie.image_urls),
-                badge: undefined,
-                tags: []
-              }
-            }))
+            const items: CollectionItem[] = itemsData.map((item: any) => {
+              const urls = parseImageUrls(item.cookie.image_urls);
+              return {
+                is_hero: item.is_hero,
+                custom_tag: item.custom_tag,
+                cookie: {
+                  id: item.cookie.id,
+                  name: item.cookie.name,
+                  description: item.cookie.description,
+                  price: item.cookie.price,
+                  image_url: urls[0] || "",
+                  image_urls: urls,
+                  ingredients: item.cookie.ingredients || [],
+                  main_image_index: item.cookie.main_image_index || 0,
+                  badge: undefined,
+                  tags: []
+                }
+              };
+            })
 
             setCollection({
               title: collectionData.title,
@@ -203,9 +213,9 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-95"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/10 opacity-100"></div>
                 
-                <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white w-full">
+                <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white w-full drop-shadow-xl">
                   {/* mobile stacking: text then price/button */}
                   <div className="flex flex-col gap-6 md:hidden">
                     <div className="max-w-2xl">
@@ -221,10 +231,11 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                       <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
                         {heroItem.cookie.description}
                       </p>
-                      <span className="text-3xl font-bold text-[#F8E19A] mb-4">{heroItem.cookie.price.toFixed(2)}€</span>
+                      <span className="text-3xl font-bold text-[#F8E19A] mb-4 drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
                       <button 
                         onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                        className="w-full px-8 py-3 bg-white text-[#930021] rounded-full font-bold text-lg hover:bg-[#F9E7AE] transition-all transform hover:scale-105 shadow-xl"
+                        className="w-full px-8 py-3 rounded-full font-bold text-lg text-white hover:opacity-90 transition-all transform hover:scale-105 shadow-xl"
+                        style={{ backgroundColor: collection.title_color || '#930021' }}
                       >
                         Probar ahora
                       </button>
@@ -248,10 +259,11 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                     </div>
 
                     <div className="flex flex-col items-end gap-4 min-w-max">
-                      <span className="text-3xl md:text-5xl font-bold text-[#F8E19A]">{heroItem.cookie.price.toFixed(2)}€</span>
+                      <span className="text-3xl md:text-5xl font-bold text-[#F8E19A] drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
                       <button 
                         onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                        className="px-8 py-3 bg-white text-[#930021] rounded-full font-bold text-lg hover:bg-[#F9E7AE] transition-all transform hover:scale-105 shadow-xl"
+                        className="px-8 py-3 rounded-full font-bold text-lg text-white hover:opacity-90 transition-all transform hover:scale-105 shadow-xl"
+                        style={{ backgroundColor: collection.title_color || '#930021' }}
                       >
                         Probar ahora
                       </button>
@@ -271,9 +283,9 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/10 opacity-100"></div>
 
-                <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white">
+                <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white drop-shadow-xl">
                   {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
                     <StampBadge
                       text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
@@ -287,10 +299,11 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                     {heroItem.cookie.description}
                   </p>
                   <div className="flex items-center gap-4">
-                    <span className="text-2xl font-bold text-[#F9E7AE]">{heroItem.cookie.price.toFixed(2)}€</span>
+                    <span className="text-2xl font-bold text-[#F9E7AE] drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
                     <button 
                       onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                      className="px-6 py-2 bg-white text-[#930021] rounded-full font-medium hover:bg-[#F9E7AE] transition-colors"
+                      className="px-6 py-2 rounded-full font-medium text-white hover:opacity-90 transition-colors shadow-md"
+                      style={{ backgroundColor: collection.title_color || '#930021' }}
                     >
                       Probar ahora
                     </button>
@@ -336,7 +349,8 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
 
               <Link 
                 href="/galletas" 
-                className="flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border-2 border-dashed border-gray-200 text-gray-500 hover:border-[#930021]/40 hover:text-[#930021] font-medium transition-all duration-200 group mt-2"
+                className="flex items-center justify-center gap-2 py-3 px-6 rounded-full text-white font-medium transition-all duration-200 group mt-2 hover:opacity-90 shadow-md"
+                style={{ backgroundColor: collection.title_color || '#930021' }}
               >
                 Ver toda la colección
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

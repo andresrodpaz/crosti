@@ -29,19 +29,20 @@ export default function TiendaPage() {
         const res = await fetch('/api/cookies?visible=true')
         if (res.ok) {
           const data = await res.json()
+          if (data.error) throw new Error(data.error)
           const cookiesList = Array.isArray(data) ? data : data.cookies || []
           const formattedCookies = cookiesList.map((c: any) => ({
             ...c,
             imageUrl: c.imageUrl || (c.image_urls && c.image_urls.length > 0 ? c.image_urls[0] : null) || "/images/cookies/default.jpg"
           }))
           setCookies(formattedCookies)
+          setLoading(false)
         } else {
-          console.error("Failed to fetch cookies")
+          throw new Error(`Failed to fetch cookies: ${res.status}`)
         }
       } catch (e) {
-        console.error("Error fetching cookies", e)
-      } finally {
-        setLoading(false)
+        console.error("Error fetching cookies, retrying...", e)
+        setTimeout(fetchCookies, 3000)
       }
     }
     fetchCookies()

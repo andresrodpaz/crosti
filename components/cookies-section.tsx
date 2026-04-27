@@ -63,36 +63,19 @@ export function CookiesSection() {
       const res = await fetch("/api/cookies?carousel=true")
 
       if (!res.ok) {
-        let errorData
-        try {
-          errorData = await res.json()
-        } catch (jsonError) {
-          console.error("[Message] Failed to parse error response as JSON")
-          errorData = { error: "Server error", hint: "Check console for details" }
-        }
-
-        console.error("[Message] ❌ Error loading cookies: API returned", res.status)
-
-        if (res.status === 503) {
-          console.error("[Message] 🔧 DATABASE NOT INITIALIZED!")
-          console.error("[Message] 📝 Solution: Run the SQL scripts from the scripts/ folder:")
-          console.error("[Message]    1. scripts/001_create_tables.sql")
-          console.error("[Message]    2. scripts/002_seed_initial_data.sql")
-          console.error("[Message]    3. scripts/003_enable_rls.sql")
-        }
-
-        console.error("[Message] Error details:", errorData)
-        setCookies([])
-        return
+        throw new Error(`API returned ${res.status}`)
       }
 
       const data = await res.json()
+      if (data.error) {
+        throw new Error(data.error)
+      }
       setCookies(Array.isArray(data) ? data : data.cookies || [])
+      setIsLoading(false)
     } catch (error) {
-      console.error("[Message] Unexpected error loading cookies:", error)
-      setCookies([])
+      console.error("[Message] Error loading cookies, retrying...", error)
+      setTimeout(loadCarouselCookies, 3000)
     }
-    setIsLoading(false)
   }
 
   const totalPages = Math.ceil(cookies.length / itemsPerPage)

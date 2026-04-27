@@ -108,9 +108,9 @@ export default function Home() {
       <AboutSection />
 
       {/* Wave: Nosotros (#F9E7AE) → Reels (#FEFCF5) */}
-      <div className="bg-[#F9E7AE]">
+      {/* <div className="bg-[#F9E7AE]">
         <WaveDivider color="#FEFCF5" />
-      </div>
+      </div> */}
       <ReelsSection />
 
       {/* Wave: Reels (#FEFCF5) → Visítanos (#F0DEC1) */}
@@ -120,9 +120,9 @@ export default function Home() {
       <VisitSection />
 
       {/* Wave: Visítanos (#F0DEC1) → CTA */}
-      <div className="bg-[#F0DEC1]">
+      {/* <div className="bg-[#F0DEC1]">
         <WaveDivider color="#924C14" />
-      </div>
+      </div> */}
       <CTASection />
       <Footer />
     </main>

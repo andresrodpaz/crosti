@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { CookieDetailModal } from "@/components/cookie-detail-modal"
 
 interface FeaturedCookie {
   id: string
@@ -9,7 +10,10 @@ interface FeaturedCookie {
   description: string
   price: number
   image_urls: string[]
+  ingredients?: string[]
+  main_image_index?: number
   custom_description?: string
+  tags?: { id: string; name: string; color_hex: string }[]
 }
 
 function FeaturedCookieSkeleton() {
@@ -31,6 +35,7 @@ function FeaturedCookieSkeleton() {
 export function FeaturedCookieHero() {
   const [cookie, setCookie] = useState<FeaturedCookie | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     fetch("/api/featured-cookie", { cache: "no-store" })
@@ -135,8 +140,8 @@ export function FeaturedCookieHero() {
           </p>
 
           {/* Botón: centrado en móvil, alineado izquierda en desktop */}
-          <Link
-            href="/tienda"
+          <button
+            onClick={() => setShowModal(true)}
             className="
               inline-flex items-center justify-center rounded-full
               bg-[#924C14] text-[#f7efe8] font-bold tracking-wide
@@ -147,7 +152,7 @@ export function FeaturedCookieHero() {
             "
           >
             ¡Pruébala!
-          </Link>
+          </button>
         </div>
 
       </div>
@@ -166,6 +171,21 @@ export function FeaturedCookieHero() {
         " />
       </div>
 
+      {showModal && cookie && (
+        <CookieDetailModal
+          cookie={{
+            id: cookie.id,
+            name: cookie.name,
+            description: cookie.description,
+            price: cookie.price,
+            image_urls: cookie.image_urls || [],
+            ingredients: cookie.ingredients || [],
+            main_image_index: cookie.main_image_index || 0,
+            tags: cookie.tags || []
+          }}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </section>
   )
 }

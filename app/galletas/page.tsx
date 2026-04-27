@@ -59,16 +59,24 @@ export default function GalletasPage() {
     try {
       const [tagsRes, cookiesRes] = await Promise.all([fetch("/api/tags"), fetch("/api/cookies?visible=true")])
 
+      if (!tagsRes.ok || !cookiesRes.ok) {
+        throw new Error("Failed to load data from API")
+      }
+
       const tagsData = await tagsRes.json()
       const cookiesData = await cookiesRes.json()
+      
+      if (cookiesData.error || tagsData.error) {
+        throw new Error("API returned an error")
+      }
 
       setTags(tagsData)
       setCookies(cookiesData)
       setFilteredCookies(cookiesData)
-    } catch (error) {
-      console.error("Error loading data:", error)
-    } finally {
       setIsLoading(false)
+    } catch (error) {
+      console.error("Error loading data, retrying...", error)
+      setTimeout(loadData, 3000)
     }
   }
 

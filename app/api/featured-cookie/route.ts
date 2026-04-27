@@ -19,7 +19,7 @@ export async function GET() {
     const { data: cookieData, error: cookieError } = await supabase
       .from("cookies")
       .select(`
-        id, name, description, price, image_urls, image_url, main_image_index, is_visible,
+        id, name, description, price, image_urls, image_url, main_image_index, is_visible, ingredients,
         cookie_tags (
           tags (
             id, name, color_id,
