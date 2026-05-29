@@ -77,7 +77,7 @@ export async function GET(request: Request) {
     return NextResponse.json([])
   } catch (error) {
     console.error("[Message] Unexpected error in cookies API:", error)
-    
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Internal server error"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

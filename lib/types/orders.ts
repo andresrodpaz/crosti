@@ -10,6 +10,14 @@ export type CartItem = {
     cookieName: string
     quantity: number
   }>
+  type?: string
+  image?: string
+  boxId?: string
+  boxCookies?: Array<{
+    cookieId: string
+    cookieName: string
+    quantity: number
+  }>
 }
 
 export type Order = {

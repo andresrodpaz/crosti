@@ -12,6 +12,7 @@ export function ClubRegistrationForm({ referralCode }: { referralCode?: string }
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null)
+  const [walletLoading, setWalletLoading] = useState<"apple" | "google" | null>(null)
   const router = useRouter()
   
   const [formData, setFormData] = useState({

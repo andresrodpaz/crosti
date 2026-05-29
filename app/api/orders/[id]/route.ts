@@ -1,17 +1,18 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createServerClient()
     const { status } = await request.json()
+    const { id } = await params
 
-    console.log("[Message] Updating order:", params.id, "to status:", status)
+    console.log("[Message] Updating order:", id, "to status:", status)
 
     const { data, error } = await supabase
       .from("orders")
       .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
 
     if (error) {

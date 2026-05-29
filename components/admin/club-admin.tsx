@@ -35,7 +35,7 @@ export function ClubAdmin() {
   const [stamping, setStamping] = useState(false)
   const [scanMode, setScanMode] = useState<"scanner" | "manual">("scanner")
   const [scannedCustomer, setScannedCustomer] = useState<{
-    name: string; email: string; stampCount: number
+    id: string; name: string; email: string; stampCount: number
   } | null>(null)
   const [lookingUp, setLookingUp] = useState(false)
 

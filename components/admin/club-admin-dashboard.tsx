@@ -41,7 +41,7 @@ export function ClubAdminDashboard() {
           .select("stamps_given")
           .gte("created_at", firstDayOfMonth.toISOString())
         
-        const stampsSum = stampsData?.reduce((acc, curr) => acc + curr.stamps_given, 0) || 0
+        const stampsSum = stampsData?.reduce((acc: number, curr: { stamps_given: number }) => acc + curr.stamps_given, 0) || 0
 
         // Rewards this month
         const { count: rewardsCount } = await supabase
