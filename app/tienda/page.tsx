@@ -8,7 +8,6 @@ import { useCartStore } from "@/lib/cart-store"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCart, Minus, Plus, Trash2, X, Package, Clock, MapPin, Phone, ChevronDown } from "lucide-react"
-import { PackBuilderModal } from "@/components/pack-builder-modal"
 import { Navbar } from "@/components/navbar"
 import { NewsBanner } from "@/components/news-banner"
 import { BoxesSection } from "@/components/boxes-section"
@@ -20,7 +19,6 @@ export default function TiendaPage() {
   const [loading, setLoading] = useState(true)
   const { items, addItem, updateQuantity, removeItem, getTotalItems, getTotalPrice } = useCartStore()
   const [showCart, setShowCart] = useState(false)
-  const [showPackBuilder, setShowPackBuilder] = useState(false)
   const [showShop, setShowShop] = useState(false)
 
   useEffect(() => {
@@ -55,7 +53,6 @@ export default function TiendaPage() {
 
   const handleShowShop = () => {
     setShowShop(true)
-    // Give the DOM a tick to render before scrolling
     setTimeout(() => {
       document.getElementById("shop-section")?.scrollIntoView({ behavior: "smooth" })
     }, 50)
@@ -69,17 +66,19 @@ export default function TiendaPage() {
         cartItemCount={getTotalItems()}
       />
 
-      {/* ── Landing / How it works section ── */}
-      <main className="flex flex-col items-center px-4 py-12 md:py-16 text-center">
-
-        <h1 className="text-4xl md:text-6xl font-bold text-[#930021] mb-4 leading-tight">
-          Nuestra Tienda
+      {/* ── Hero / How it works ── */}
+      <main className="flex flex-col items-center px-4 py-14 md:py-20 text-center">
+        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#930021]/50 mb-3">
+          Artisan Cookies · Barcelona
+        </p>
+        <h1 className="text-5xl md:text-7xl font-black text-[#930021] mb-5 leading-[0.95] tracking-tight">
+          Nuestra<br />Tienda
         </h1>
-        <p className="text-lg md:text-xl text-[#930021]/70 max-w-xl mb-10 leading-relaxed">
-          Elige tus galletas, arma tu pack y recíbelas en casa. Así de fácil.
+        <p className="text-base md:text-lg text-[#930021]/60 max-w-md mb-12 leading-relaxed font-medium">
+          Elige tus galletas, arma tu pedido y recíbelas en casa.
         </p>
 
-        {/* How it works */}
+        {/* Steps */}
         <div className="w-full max-w-2xl mb-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -99,58 +98,51 @@ export default function TiendaPage() {
         </div>
 
         {/* Info pills */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
-          <div className="flex items-center gap-2 bg-white/70 border border-[#930021]/20 rounded-full px-4 py-2 text-sm text-[#930021] font-medium">
-            <Clock className="w-4 h-4" />
-            Mínimo 24h de antelación
-          </div>
-          <div className="flex items-center gap-2 bg-white/70 border border-[#930021]/20 rounded-full px-4 py-2 text-sm text-[#930021] font-medium">
-            <MapPin className="w-4 h-4" />
-            Entrega en Barcelona
-          </div>
-          <div className="flex items-center gap-2 bg-white/70 border border-[#930021]/20 rounded-full px-4 py-2 text-sm text-[#930021] font-medium">
-            <Phone className="w-4 h-4" />
-            Trato directo y personalizado
-          </div>
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {[
+            { icon: Clock, label: "Mínimo 24h de antelación" },
+            { icon: MapPin, label: "Entrega en Barcelona" },
+            { icon: Phone, label: "Trato directo y personalizado" },
+          ].map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-2 bg-[#930021]/8 border border-[#930021]/15 rounded-full px-4 py-2 text-xs text-[#930021] font-semibold tracking-wide"
+            >
+              <Icon className="w-3.5 h-3.5 opacity-70" />
+              {label}
+            </div>
+          ))}
         </div>
 
-        <Button
-          size="lg"
+        <button
           onClick={handleShowShop}
-          className="h-14 px-10 text-base font-bold bg-[#930021] hover:bg-[#7a001b] text-[#F8E19A] shadow-lg transition-all"
+          className="group inline-flex items-center gap-3 bg-[#930021] hover:bg-[#7a001b] text-[#F8E19A] font-bold text-sm tracking-widest uppercase px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
         >
           Ver productos
-          <ChevronDown className="w-5 h-5 ml-2" />
-        </Button>
-
+          <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+        </button>
       </main>
 
-      {/* ── Full Shop section (revealed on click) ── */}
+      {/* ── Shop section ── */}
       {showShop && (
-        <div id="shop-section" className="container mx-auto px-4 lg:px-8 py-8 lg:py-16 flex-grow border-t-4 border-[#930021]/10">
+        <div id="shop-section" className="container mx-auto px-4 lg:px-8 py-10 lg:py-16 flex-grow border-t-2 border-[#930021]/10">
 
           {/* Delivery info banner */}
-          <div className="mb-12 bg-white border-2 border-[#930021]/20 rounded-xl p-6 shadow-lg">
+          <div className="mb-10 bg-white/80 backdrop-blur-sm border border-[#930021]/15 rounded-2xl p-5 md:p-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-[#930021] rounded-full flex items-center justify-center flex-shrink-0">
-                <Package className="w-6 h-6 text-[#F8E19A]" />
+              <div className="w-10 h-10 bg-[#930021] rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Package className="w-5 h-5 text-[#F8E19A]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-[#930021] mb-2">¿Cómo funcionan las entregas?</h3>
-                <ul className="space-y-2 text-[#924C14]">
+              <div>
+                <h3 className="text-base font-bold text-[#930021] mb-2">¿Cómo funcionan las entregas?</h3>
+                <ul className="space-y-1.5 text-sm text-[#924C14]/80">
                   <li className="flex items-start gap-2">
-                    <span className="text-[#930021] font-bold mt-1">•</span>
-                    <span>
-                      <strong>Pedidos programados:</strong> Selecciona la fecha y hora de entrega que mejor te convenga
-                      (mínimo 24h de anticipación)
-                    </span>
+                    <span className="text-[#930021] font-bold mt-0.5 leading-none">·</span>
+                    <span><strong className="text-[#930021]">Pedidos programados:</strong> Selecciona la fecha y hora de entrega que mejor te convenga (mínimo 24h de anticipación)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#930021] font-bold mt-1">•</span>
-                    <span>
-                      <strong>Sin seguimiento:</strong> Te contactaremos por WhatsApp para confirmar tu pedido y coordinar
-                      la entrega
-                    </span>
+                    <span className="text-[#930021] font-bold mt-0.5 leading-none">·</span>
+                    <span><strong className="text-[#930021]">Confirmación directa:</strong> Te contactaremos por WhatsApp para confirmar tu pedido y coordinar la entrega</span>
                   </li>
                 </ul>
               </div>
@@ -159,35 +151,11 @@ export default function TiendaPage() {
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
             <div className="flex-1">
-              <div className="mb-16">
-                <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#930021] mb-4">Nuestra Tienda</h2>
-                <p className="text-lg md:text-xl text-[#930021]/80">
-                  Elige tus galletas favoritas o arma tu pack personalizado
+              <div className="mb-10">
+                <h2 className="text-4xl md:text-5xl font-black text-[#930021] tracking-tight mb-1">Nuestra Tienda</h2>
+                <p className="text-base text-[#930021]/60 font-medium">
+                  Elige tus galletas favoritas o uno de nuestros packs
                 </p>
-              </div>
-
-              {/* Pack builder banner */}
-              <div className="mb-12">
-                <div
-                  onClick={() => setShowPackBuilder(true)}
-                  className="relative group cursor-pointer overflow-hidden rounded-3xl bg-linear-to-r from-[#930021] to-[#700019] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-                    <Package className="w-64 h-64 text-white transform rotate-12" />
-                  </div>
-                  <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-8 text-white">
-                    <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                      <Package className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="flex-1 text-center md:text-left z-10">
-                      <h3 className="text-2xl md:text-3xl font-bold mb-2">Arma tu Pack Personalizado</h3>
-                      <p className="text-white/90 text-base md:text-lg opacity-90 max-w-xl">Elige los sabores que quieras y ahorra en tu compra. ¡La combinación perfecta para ti!</p>
-                    </div>
-                    <div className="bg-white text-[#930021] p-4 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300 z-10">
-                      <Plus className="w-6 h-6 md:w-8 md:h-8" />
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Predefined boxes */}
@@ -195,75 +163,86 @@ export default function TiendaPage() {
                 <BoxesSection />
               </div>
 
-              <h2 className="text-3xl font-bold text-[#930021] mb-6">Galletas Individuales</h2>
+              {/* Cookie grid header */}
+              <div className="flex items-end justify-between mb-6 border-b-2 border-[#930021]/10 pb-4">
+                <h2 className="text-2xl font-black text-[#930021] tracking-tight">Galletas Individuales</h2>
+                {!loading && (
+                  <span className="text-xs font-semibold text-[#930021]/40 uppercase tracking-widest">
+                    {cookies.length} productos
+                  </span>
+                )}
+              </div>
 
               {loading ? (
                 <CookieSkeletonGrid
                   count={6}
                   variant="catalog"
-                  gridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"
+                  gridClass="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"
                 />
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {cookies.map((cookie) => {
                     const quantity = getItemQuantity(cookie.id)
                     return (
                       <div
                         key={cookie.id}
-                        className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5"
+                        className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ring-1 ring-black/5 hover:ring-[#930021]/20"
                       >
-                        <div className="relative aspect-square overflow-hidden bg-[#F5F5F7]">
+                        {/* Image */}
+                        <div className="relative aspect-square overflow-hidden bg-[#F9F4ED]">
                           <Image
                             src={cookie.imageUrl || "/placeholder.svg?height=500&width=500&query=cookie"}
                             alt={cookie.name}
                             fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
+                          {/* Quantity badge */}
                           {quantity > 0 && (
-                            <div className="absolute top-4 right-4 bg-[#930021] text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg z-10 animate-in zoom-in">
+                            <div className="absolute top-3 right-3 bg-[#930021] text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-black shadow-md z-10">
                               {quantity}
                             </div>
                           )}
+                          {/* Subtle overlay on hover */}
+                          <div className="absolute inset-0 bg-[#930021]/0 group-hover:bg-[#930021]/5 transition-colors duration-300" />
                         </div>
 
-                        <div className="p-6 flex flex-col flex-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="font-bold text-xl text-gray-900 leading-tight line-clamp-1 flex-1" title={cookie.name}>
-                              {cookie.name}
-                            </h3>
-                          </div>
-                          <p className="text-3xl font-black text-[#930021] mb-6">
-                            {cookie.price.toFixed(2)}<span className="text-lg font-bold ml-1">€</span>
+                        {/* Info */}
+                        <div className="p-5 flex flex-col flex-1">
+                          <h3
+                            className="font-bold text-base text-gray-900 leading-tight line-clamp-1 mb-1"
+                            title={cookie.name}
+                          >
+                            {cookie.name}
+                          </h3>
+                          <p className="text-2xl font-black text-[#930021] mb-5 leading-none">
+                            {cookie.price.toFixed(2)}
+                            <span className="text-sm font-bold ml-0.5">€</span>
                           </p>
 
                           <div className="mt-auto">
                             {quantity === 0 ? (
-                              <Button
-                                className="w-full h-12 rounded-xl text-lg font-bold shadow-sm hover:shadow-lg transition-all bg-[#930021] hover:bg-[#7a001b] text-white group"
+                              <button
+                                className="w-full h-11 rounded-xl text-sm font-bold bg-[#930021] hover:bg-[#7a001b] text-white transition-colors flex items-center justify-center gap-2 group/btn"
                                 onClick={() => addItem({ id: cookie.id, name: cookie.name, price: cookie.price, imageUrl: cookie.imageUrl })}
                               >
-                                <Plus className="w-5 h-5 mr-2 group-hover:scale-125 transition-transform" />
-                                Agregar
-                              </Button>
+                                <Plus className="w-4 h-4 group-hover/btn:rotate-90 transition-transform duration-200" />
+                                Añadir
+                              </button>
                             ) : (
-                              <div className="flex items-center justify-between bg-[#F5F5F7] rounded-xl p-1.5 w-full">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-10 w-10 bg-white rounded-lg shadow-sm hover:bg-white text-[#930021] hover:text-red-700"
+                              <div className="flex items-center justify-between bg-[#F8E19A]/60 rounded-xl p-1 w-full border border-[#930021]/10">
+                                <button
+                                  className="h-9 w-9 bg-white rounded-lg shadow-sm flex items-center justify-center text-[#930021] hover:bg-red-50 transition-colors"
                                   onClick={() => updateQuantity(cookie.id, quantity - 1)}
                                 >
-                                  <Minus className="w-5 h-5" />
-                                </Button>
-                                <span className="font-bold text-xl text-[#930021]">{quantity}</span>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-10 w-10 bg-[#930021] rounded-lg shadow-sm hover:bg-[#7a001b] text-white"
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="font-black text-lg text-[#930021] tabular-nums">{quantity}</span>
+                                <button
+                                  className="h-9 w-9 bg-[#930021] rounded-lg shadow-sm flex items-center justify-center text-white hover:bg-[#7a001b] transition-colors"
                                   onClick={() => updateQuantity(cookie.id, quantity + 1)}
                                 >
-                                  <Plus className="w-5 h-5" />
-                                </Button>
+                                  <Plus className="w-4 h-4" />
+                                </button>
                               </div>
                             )}
                           </div>
@@ -275,100 +254,101 @@ export default function TiendaPage() {
               )}
             </div>
 
-            {/* Sticky cart sidebar */}
-            <div className={`lg:w-[420px] xl:w-[460px] ${showCart ? "fixed inset-0 z-50 lg:relative lg:z-auto" : "hidden lg:block"}`}>
+            {/* ── Sticky cart sidebar ── */}
+            <div className={`lg:w-[400px] xl:w-[440px] ${showCart ? "fixed inset-0 z-50 lg:relative lg:z-auto" : "hidden lg:block"}`}>
               {showCart && (
                 <div
-                  className="absolute inset-0 bg-black/50 backdrop-blur-sm lg:hidden transition-opacity"
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm lg:hidden"
                   onClick={() => setShowCart(false)}
                 />
               )}
 
-              <div className={`${showCart ? "absolute right-0 top-0 bottom-0 w-[90%] max-w-md animate-slide-left lg:relative lg:animate-none" : ""} lg:sticky lg:top-24`}>
-                <Card className="h-full lg:h-auto border-2 border-[#930021]/30 shadow-2xl bg-white">
-                  <CardContent className="p-5 lg:p-7 h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl lg:text-3xl font-bold text-[#930021]">Tu Pedido</h2>
+              <div className={`${showCart ? "absolute right-0 top-0 bottom-0 w-[88%] max-w-sm animate-slide-left lg:relative lg:animate-none" : ""} lg:sticky lg:top-24`}>
+                <Card className="h-full lg:h-auto border border-[#930021]/20 shadow-xl bg-white rounded-2xl overflow-hidden">
+                  <CardContent className="p-0 h-full flex flex-col">
+
+                    {/* Cart header */}
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-[#930021]/10">
+                      <div>
+                        <h2 className="text-xl font-black text-[#930021]">Tu Pedido</h2>
+                        {items.length > 0 && (
+                          <p className="text-xs text-[#930021]/50 font-medium mt-0.5">{getTotalItems()} {getTotalItems() === 1 ? "artículo" : "artículos"}</p>
+                        )}
+                      </div>
                       {showCart && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="lg:hidden text-[#930021] hover:text-[#930021]"
+                        <button
+                          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#930021]/10 text-[#930021] transition-colors"
                           onClick={() => setShowCart(false)}
                         >
-                          <X className="w-6 h-6" />
-                        </Button>
+                          <X className="w-5 h-5" />
+                        </button>
                       )}
                     </div>
 
                     {items.length === 0 ? (
-                      <div className="flex-1 flex flex-col items-center justify-center py-16">
-                        <div className="w-20 h-20 rounded-full bg-[#F8E19A]/50 flex items-center justify-center mb-5">
-                          <ShoppingCart className="w-10 h-10 text-[#930021]/60" />
+                      <div className="flex-1 flex flex-col items-center justify-center py-16 px-6">
+                        <div className="w-16 h-16 rounded-2xl bg-[#F8E19A]/80 flex items-center justify-center mb-4">
+                          <ShoppingCart className="w-8 h-8 text-[#930021]/50" />
                         </div>
-                        <p className="text-lg font-medium text-[#930021] mb-2">Tu carrito está vacío</p>
-                        <p className="text-sm text-[#930021]/70 text-center px-4">
+                        <p className="text-sm font-bold text-[#930021] mb-1">Carrito vacío</p>
+                        <p className="text-xs text-[#930021]/50 text-center leading-relaxed">
                           Agrega tus galletas favoritas para comenzar
                         </p>
                       </div>
                     ) : (
                       <>
-                        <div className="flex-1 space-y-3 mb-5 overflow-y-auto max-h-[calc(100vh-24rem)] lg:max-h-[460px] pr-2 scrollbar-elegant">
+                        {/* Cart items */}
+                        <div className="flex-1 space-y-2 py-4 px-4 overflow-y-auto max-h-[calc(100vh-24rem)] lg:max-h-[420px] scrollbar-elegant">
                           {items.map((item) => (
                             <div
                               key={item.id}
-                              className="flex gap-3 p-4 rounded-xl bg-[#F8E19A]/30 border border-[#930021]/10 hover:border-[#930021]/30 transition-all"
+                              className="flex gap-3 p-3 rounded-xl bg-[#F8E19A]/25 border border-[#930021]/8 hover:border-[#930021]/20 transition-colors group/item"
                             >
-                              <div className="w-20 h-20 bg-white rounded-lg relative overflow-hidden flex-shrink-0 border border-[#930021]/20">
+                              <div className="w-16 h-16 bg-[#F9F4ED] rounded-lg relative overflow-hidden flex-shrink-0">
                                 <Image
-                                  src={item.imageUrl || "/placeholder.svg?height=80&width=80&query=cookie"}
+                                  src={item.imageUrl || "/placeholder.svg?height=64&width=64"}
                                   alt={item.name}
                                   fill
                                   className="object-cover"
                                 />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-base leading-snug mb-1 text-[#930021] line-clamp-2">{item.name}</h4>
-                                <div className="flex items-center gap-2 text-sm text-[#930021]/70 mb-1">
-                                  <span>€{item.price.toFixed(2)}</span>
-                                  <span>×</span>
-                                  <span className="font-medium text-[#930021]">{item.quantity}</span>
-                                </div>
-                                <p className="font-bold text-lg text-[#930021]">€{(item.price * item.quantity).toFixed(2)}</p>
+                                <h4 className="font-semibold text-sm leading-snug text-[#930021] line-clamp-2 mb-1">{item.name}</h4>
+                                <p className="text-xs text-[#930021]/50 mb-0.5">€{item.price.toFixed(2)} × {item.quantity}</p>
+                                <p className="font-black text-base text-[#930021]">€{(item.price * item.quantity).toFixed(2)}</p>
                               </div>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="flex-shrink-0 hover:bg-red-100 hover:text-red-600 text-[#930021]/60 h-9 w-9"
+                              <button
+                                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 group-hover/item:opacity-100 hover:bg-red-50 text-[#930021]/40 hover:text-red-600 transition-all"
                                 onClick={() => removeItem(item.id)}
                               >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             </div>
                           ))}
                         </div>
 
-                        <div className="border-t-2 border-[#930021]/20 pt-4 space-y-3">
-                          <div className="flex justify-between items-center text-base">
-                            <span className="text-[#930021]/70">Subtotal</span>
+                        {/* Totals */}
+                        <div className="px-5 py-4 border-t border-[#930021]/10 bg-white space-y-3">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-[#930021]/60 font-medium">Subtotal</span>
                             <span className="font-semibold text-[#930021]">€{getTotalPrice().toFixed(2)}</span>
                           </div>
-                          <div className="flex justify-between items-center text-2xl font-bold pt-3 border-t-2 border-[#930021]/20">
-                            <span className="text-[#930021]">Total</span>
-                            <span className="text-[#930021]">€{getTotalPrice().toFixed(2)}</span>
+                          <div className="flex justify-between items-center pt-2 border-t border-[#930021]/10">
+                            <span className="font-black text-base text-[#930021]">Total</span>
+                            <span className="font-black text-xl text-[#930021]">€{getTotalPrice().toFixed(2)}</span>
                           </div>
-                        </div>
 
-                        <Button
-                          asChild
-                          className="w-full mt-5 h-13 text-lg font-bold shadow-lg hover:shadow-xl transition-all bg-[#930021] hover:bg-[#930021]/90 text-[#F8E19A]"
-                          size="lg"
-                        >
-                          <Link href="/tienda/checkout">
-                            Realizar Pedido
-                            <ShoppingCart className="w-5 h-5 ml-2" />
-                          </Link>
-                        </Button>
+                          <Button
+                            asChild
+                            className="w-full mt-1 h-12 text-sm font-bold tracking-wide bg-[#930021] hover:bg-[#7a001b] text-[#F8E19A] rounded-xl shadow-md hover:shadow-lg transition-all"
+                            size="lg"
+                          >
+                            <Link href="/tienda/checkout">
+                              Realizar Pedido
+                              <ShoppingCart className="w-4 h-4 ml-2" />
+                            </Link>
+                          </Button>
+                        </div>
                       </>
                     )}
                   </CardContent>
@@ -380,7 +360,6 @@ export default function TiendaPage() {
       )}
 
       <Footer />
-      <PackBuilderModal open={showPackBuilder} onClose={() => setShowPackBuilder(false)} cookies={cookies} />
     </div>
   )
 }

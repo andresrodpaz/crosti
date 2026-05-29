@@ -1,0 +1,366 @@
+{
+  "info": {
+    "name": "Club Crosti — Loyalty API",
+    "description": "Complete API test collection for the Club Crosti loyalty program. Covers registration, stamp management, PIN verification, and wallet PDF generation.\n\n**Setup:**\n1. Set the `baseUrl` variable to your running server (e.g. `http://localhost:3000`)\n2. Run the collection in order — the `Register` request auto-saves `customerId` and `email` as variables for subsequent tests.\n\n**Environment variables required:**\n- `baseUrl`: e.g. `http://localhost:3000`",
+    "_postman_id": "crosti-club-loyalty-v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "testEmail", "value": "", "type": "string" },
+    { "key": "customerId", "value": "", "type": "string" },
+    { "key": "staffPin", "value": "1234", "type": "string" },
+    { "key": "orderId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Registration",
+      "item": [
+        {
+          "name": "POST Register — Success",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('testEmail', `pw_${ts}@postman.dev`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has success:true', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.true;",
+                  "  pm.expect(body.customerId).to.be.a('string');",
+                  "  pm.collectionVariables.set('customerId', body.customerId);",
+                  "});",
+                  "pm.test('Response time < 5s', () => pm.expect(pm.response.responseTime).to.be.below(5000));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"name\": \"Postman Test User\",\n  \"birthday\": \"1990-06-15\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/club/register", "host": ["{{baseUrl}}"], "path": ["api", "club", "register"] }
+          }
+        },
+        {
+          "name": "POST Register — Missing Email (expect 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Response has error message', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"name\": \"No Email\" }" },
+            "url": { "raw": "{{baseUrl}}/api/club/register", "host": ["{{baseUrl}}"], "path": ["api", "club", "register"] }
+          }
+        },
+        {
+          "name": "POST Register — Duplicate Email (expect 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Error mentions registrado', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error).to.match(/registrado/i);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"email\": \"{{testEmail}}\", \"name\": \"Duplicate\" }" },
+            "url": { "raw": "{{baseUrl}}/api/club/register", "host": ["{{baseUrl}}"], "path": ["api", "club", "register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Stamps",
+      "item": [
+        {
+          "name": "POST Add Stamp — Counter (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('newStampCount incremented', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.true;",
+                  "  pm.expect(body.newStampCount).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"amount\": 1,\n  \"origin\": \"counter\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/club/stamps", "host": ["{{baseUrl}}"], "path": ["api", "club", "stamps"] }
+          }
+        },
+        {
+          "name": "POST Add Stamp — Delivery with OrderId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('orderId', `PM-${Date.now()}`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"amount\": 1,\n  \"origin\": \"delivery\",\n  \"platform\": \"glovo\",\n  \"orderId\": \"{{orderId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/club/stamps", "host": ["{{baseUrl}}"], "path": ["api", "club", "stamps"] }
+          }
+        },
+        {
+          "name": "POST Add Stamp — Duplicate Order (expect 400 DUPLICATE_ORDER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Error is DUPLICATE_ORDER', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error).to.equal('DUPLICATE_ORDER');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"amount\": 1,\n  \"origin\": \"delivery\",\n  \"platform\": \"glovo\",\n  \"orderId\": \"{{orderId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/club/stamps", "host": ["{{baseUrl}}"], "path": ["api", "club", "stamps"] }
+          }
+        },
+        {
+          "name": "POST Add Stamp — Unknown Email (expect 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"email\": \"nobody@unknown.dev\", \"amount\": 1 }" },
+            "url": { "raw": "{{baseUrl}}/api/club/stamps", "host": ["{{baseUrl}}"], "path": ["api", "club", "stamps"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. PIN Verification",
+      "item": [
+        {
+          "name": "POST Verify PIN — Missing PIN (expect 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{baseUrl}}/api/club/verify-pin", "host": ["{{baseUrl}}"], "path": ["api", "club", "verify-pin"] }
+          }
+        },
+        {
+          "name": "POST Verify PIN — Wrong PIN (expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401 or 404', () => {",
+                  "  pm.expect([401, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"pin\": \"9999_wrong_pin\" }" },
+            "url": { "raw": "{{baseUrl}}/api/club/verify-pin", "host": ["{{baseUrl}}"], "path": ["api", "club", "verify-pin"] }
+          }
+        },
+        {
+          "name": "POST Verify PIN — Dev fallback PIN (expect 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"pin\": \"{{staffPin}}\" }" },
+            "url": { "raw": "{{baseUrl}}/api/club/verify-pin", "host": ["{{baseUrl}}"], "path": ["api", "club", "verify-pin"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Wallet / PDF",
+      "item": [
+        {
+          "name": "GET Wallet — Missing params (expect 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/club/wallet", "host": ["{{baseUrl}}"], "path": ["api", "club", "wallet"] }
+          }
+        },
+        {
+          "name": "GET Wallet — Unknown email (expect 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/club/wallet?type=pdf&email=nobody%40unknown.dev",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "club", "wallet"],
+              "query": [
+                { "key": "type", "value": "pdf" },
+                { "key": "email", "value": "nobody@unknown.dev" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Wallet — Valid PDF download",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type is application/pdf', () => {",
+                  "  pm.expect(pm.response.headers.get('content-type')).to.include('application/pdf');",
+                  "});",
+                  "pm.test('Body starts with %PDF (valid PDF)', () => {",
+                  "  const body = pm.response.text();",
+                  "  pm.expect(body.startsWith('%PDF')).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/club/wallet?type=pdf&email={{testEmail}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "club", "wallet"],
+              "query": [
+                { "key": "type", "value": "pdf" },
+                { "key": "email", "value": "{{testEmail}}" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,62 @@
-import Image from "next/image"
+"use client"
+
+import { useEffect, useRef } from "react"
 
 export function CrostiHero() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {})
+    }
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#F8E19A] relative overflow-visible flex flex-col">
+
+      {/* Keyframe styles */}
+      <style>{`
+        @keyframes shimmer-text {
+          0%   { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes float-up {
+          0%   { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes draw-underline {
+          from { stroke-dashoffset: 300; }
+          to   { stroke-dashoffset: 0; }
+        }
+        @keyframes wiggle-in {
+          0%   { transform: rotate(-2deg) scale(0.95); opacity: 0; }
+          60%  { transform: rotate(1deg) scale(1.02); opacity: 1; }
+          100% { transform: rotate(0deg) scale(1); opacity: 1; }
+        }
+        .hero-word-fresh {
+          display: inline-block;
+          animation: wiggle-in 0.7s cubic-bezier(.22,1,.36,1) 0.1s both;
+        }
+        .hero-word-baked {
+          display: inline-block;
+          animation: wiggle-in 0.7s cubic-bezier(.22,1,.36,1) 0.3s both;
+        }
+        .hero-word-cookies {
+          display: inline-block;
+          animation: wiggle-in 0.7s cubic-bezier(.22,1,.36,1) 0.5s both;
+        }
+        .hero-underline {
+          stroke-dasharray: 300;
+          stroke-dashoffset: 300;
+          animation: draw-underline 0.9s ease-out 0.9s forwards;
+        }
+        .hero-subtitle {
+          animation: float-up 0.8s cubic-bezier(.22,1,.36,1) 0.8s both;
+        }
+        .video-container {
+          animation: float-up 0.9s cubic-bezier(.22,1,.36,1) 0.2s both;
+        }
+      `}</style>
 
       {/* Mobile squiggle decoration */}
       <svg
@@ -30,23 +84,59 @@ export function CrostiHero() {
       <section className="relative px-4 md:px-8 lg:px-16 py-8 flex-1 flex items-center">
         <div className="grid md:grid-cols-2 gap-8 items-center w-full max-w-7xl mx-auto relative z-20">
           <div className="space-y-6 text-left">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-[#930021] leading-[1.1]">
-              <span className="block">Fresh baked</span>
-              <span className="block">cookies</span>
+            <h1
+              className="font-bold text-[#930021] leading-[1.1]"
+              style={{ fontSize: "clamp(3rem, 8vw, 6rem)" }}
+            >
+              <span className="block">
+                <span className="hero-word-fresh">Fresh&nbsp;</span>
+                <span className="hero-word-baked">baked</span>
+              </span>
+              <span className="block relative">
+                <span className="hero-word-cookies">cookies</span>
+                {/* Animated wavy underline */}
+                <svg
+                  className="absolute left-0 w-full overflow-visible"
+                  style={{ bottom: "-10px", height: "14px" }}
+                  viewBox="0 0 260 14"
+                  preserveAspectRatio="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    className="hero-underline"
+                    d="M2 8 C30 2, 60 14, 90 8 S150 2, 180 8 S240 14, 260 8"
+                    stroke="#930021"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
             </h1>
-            <p className="text-[#930021] text-lg md:text-xl font-normal">
+            <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal">
               Galletas artesanales hechas con amor desde Barcelona
             </p>
           </div>
 
-          <div className="relative h-[400px] md:h-[500px] lg:h-[550px] flex items-center justify-center">
+          {/* Video container */}
+          <div className="video-container relative h-[400px] md:h-[500px] lg:h-[550px] flex items-center justify-center">
             <div className="relative w-full max-w-[450px] h-full rounded-[2rem] overflow-hidden shadow-2xl border-2 border-[#930021] z-[10]">
-              <Image
-                src="/images/crosti-cookies-hero.jpg"
-                alt="Crosti Cookies Stack"
-                fill
-                className="object-cover object-center scale-115 transition-transform duration-700 ease-in-out hover:scale-125"
-                priority
+              <video
+                ref={videoRef}
+                src="/images/video-hero.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover object-center scale-110 transition-transform duration-700 ease-in-out hover:scale-115"
+              />
+              {/* Subtle gradient overlay for polish */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(248,225,154,0.08) 0%, rgba(147,0,33,0.10) 100%)",
+                }}
               />
             </div>
           </div>

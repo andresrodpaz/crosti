@@ -6,13 +6,15 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
-    const { data: featuredRow, error } = await supabase
+    const { data: featuredRows, error } = await supabase
       .from("featured_cookie")
       .select("id, cookie_id, custom_description, is_active")
       .eq("is_active", true)
-      .maybeSingle()
+      .limit(1)
 
     if (error) throw error
+    const featuredRow = featuredRows && featuredRows.length > 0 ? featuredRows[0] : null
+    
     if (!featuredRow?.cookie_id) return NextResponse.json(null)
 
     // Fetch de la cookie completa
@@ -45,9 +47,26 @@ export async function GET() {
       imageUrls = [cookieData.image_url]
     }
 
+    // Try to parse style_config from custom_description
+    let parsedDescription = featuredRow.custom_description
+    let parsedStyleConfig = null
+
+    try {
+      if (featuredRow.custom_description && featuredRow.custom_description.startsWith("{")) {
+        const parsed = JSON.parse(featuredRow.custom_description)
+        if (parsed.text !== undefined) {
+          parsedDescription = parsed.text
+          parsedStyleConfig = parsed.styleConfig || null
+        }
+      }
+    } catch (e) {
+      // It's just regular text
+    }
+
     return NextResponse.json({
       featured_id: featuredRow.id,
-      custom_description: featuredRow.custom_description,
+      custom_description: parsedDescription,
+      style_config: parsedStyleConfig,
       ...cookieData,
       image_urls: imageUrls,
       tags,
@@ -66,24 +85,35 @@ export async function PUT(request: Request) {
   try {
     const supabase = await createClient()
     const body = await request.json()
-    const { cookie_id, custom_description } = body
+    const { cookie_id, custom_description, style_config } = body
 
-    // Check if row exists
-    const { data: existing } = await supabase
+    // Check if row exists safely
+    const { data: existingRows, error: checkError } = await supabase
       .from("featured_cookie")
       .select("id")
-      .maybeSingle()
+      .limit(1)
+      
+    if (checkError) {
+      console.error("Check Error:", checkError)
+    }
 
-    if (existing?.id) {
+    const existingId = existingRows && existingRows.length > 0 ? existingRows[0].id : null
+
+    // Pack the style_config into custom_description since the DB column might not exist
+    const packedDescription = style_config 
+      ? JSON.stringify({ text: custom_description, styleConfig: style_config })
+      : custom_description;
+
+    if (existingId) {
       const { error } = await supabase
         .from("featured_cookie")
-        .update({ cookie_id, custom_description, is_active: !!cookie_id })
-        .eq("id", existing.id)
+        .update({ cookie_id, custom_description: packedDescription, is_active: !!cookie_id })
+        .eq("id", existingId)
       if (error) throw error
     } else {
       const { error } = await supabase
         .from("featured_cookie")
-        .insert([{ cookie_id, custom_description, is_active: !!cookie_id }])
+        .insert([{ cookie_id, custom_description: packedDescription, is_active: !!cookie_id }])
       if (error) throw error
     }
 

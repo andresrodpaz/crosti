@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, X, Star } from "lucide-react"
+import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, X, Star, Award } from "lucide-react"
 import { CookiesAdmin } from "@/components/admin/cookies-admin"
 import { ColorsAdmin } from "@/components/admin/colors-admin"
 import { TagsAdmin } from "@/components/admin/tags-admin"
@@ -13,7 +13,9 @@ import { SingleMonthCookieAdmin } from "@/components/admin/single-month-cookie-a
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
-type Section = "dashboard" | "cookies" | "monthly" | "monthCookie" | "colors" | "tags" | "orders" | "banners" | "boxes" | "guides"
+import { ClubAdmin } from "@/components/admin/club-admin"
+
+type Section = "dashboard" | "cookies" | "monthly" | "monthCookie" | "colors" | "tags" | "orders" | "banners" | "boxes" | "guides" | "club"
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
@@ -59,7 +61,7 @@ export default function AdminPage() {
     )
   }
 
-  const menuItems = [
+  const baseMenuItems = [
     { id: "dashboard" as Section, label: "Dashboard", icon: LayoutDashboard },
     { id: "orders" as Section, label: "Pedidos", icon: ShoppingBag },
     { id: "cookies" as Section, label: "Galletas", icon: Cookie },
@@ -71,6 +73,14 @@ export default function AdminPage() {
     { id: "colors" as Section, label: "Colores", icon: Palette },
     { id: "guides" as Section, label: "Guias", icon: BookOpen },
   ]
+
+  const menuItems = process.env.NEXT_PUBLIC_LOYALTY_ENABLED === 'true'
+    ? [
+        ...baseMenuItems.slice(0, 9),
+        { id: "club" as Section, label: "Club Crosti", icon: Award },
+        ...baseMenuItems.slice(9)
+      ]
+    : baseMenuItems
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -218,6 +228,7 @@ export default function AdminPage() {
           {activeSection === "banners" && <BannersAdmin />}
           {activeSection === "colors" && <ColorsAdmin />}
           {activeSection === "tags" && <TagsAdmin />}
+          {activeSection === "club" && <ClubAdmin />}
           {activeSection === "guides" && <GuidesAdmin />}
         </main>
       </div>
@@ -226,7 +237,7 @@ export default function AdminPage() {
 }
 
 function DashboardSection({ onNavigate }: { onNavigate: (section: Section) => void }) {
-  const cards = [
+  const baseCards = [
     {
       id: "orders" as Section,
       title: "Pedidos",
@@ -284,6 +295,20 @@ function DashboardSection({ onNavigate }: { onNavigate: (section: Section) => vo
       color: "bg-violet-500",
     },
   ]
+
+  const cards = process.env.NEXT_PUBLIC_LOYALTY_ENABLED === 'true'
+    ? [
+        ...baseCards.slice(0, 7),
+        {
+          id: "club" as Section,
+          title: "Club Crosti",
+          description: "Gestiona el club de fidelidad, sellos y recompensas",
+          icon: Award,
+          color: "bg-indigo-500",
+        },
+        ...baseCards.slice(7)
+      ]
+    : baseCards
 
   return (
     <div className="p-8">

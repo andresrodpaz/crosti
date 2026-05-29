@@ -82,23 +82,23 @@ export function BoxesSection() {
   }
 
   if (loading) {
-    return (
-      <section className="py-16 bg-gradient-to-b from-[#FDF6E3] to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Header — visible immediately */}
-          <div className="text-center mb-12">
-            <div className="h-8 w-52 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse" />
-            <div className="h-6 w-36 bg-gray-200 rounded-2xl mx-auto mb-3 animate-pulse" />
-            <div className="h-4 w-80 bg-gray-200 rounded-full mx-auto animate-pulse" />
+    <section className="mb-16">
+      <div>
+        {/* Header — visible immediately */}
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <div className="h-6 w-32 bg-gray-200 rounded-full mb-3 animate-pulse" />
+            <div className="h-8 w-64 bg-gray-200 rounded-2xl mb-2 animate-pulse" />
+            <div className="h-4 w-80 bg-gray-200 rounded-full animate-pulse" />
           </div>
-          <CookieSkeletonGrid
-            count={3}
-            variant="box"
-            gridClass="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          />
         </div>
-      </section>
-    )
+        <CookieSkeletonGrid
+          count={3}
+          variant="box"
+          gridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+        />
+      </div>
+    </section>
   }
 
   if (boxes.length === 0) {
@@ -107,29 +107,31 @@ export function BoxesSection() {
 
   return (
     <>
-      <section className="py-16 bg-gradient-to-b from-[#FDF6E3] to-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#930021]/10 rounded-full text-[#930021] text-sm font-medium mb-4">
-              <Package className="w-4 h-4" />
-              Cajas Predefinidas
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-              Nuestras Cajas de Galletas
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Selecciones especiales preparadas con amor. Perfectas para regalar o disfrutar en casa.
-            </p>
+      <section className="mb-16">
+        <div>
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              {/* <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#930021]/10 rounded-full text-[#930021] text-xs font-bold uppercase tracking-wider mb-3">
+                <Package className="w-3.5 h-3.5" />
+                Cajas Predefinidas
+              </span> */}
+              <h2 className="text-3xl md:text-4xl font-bold text-[#930021]">
+                Packs Especiales
+              </h2>
+              <p className="text-[#7C4A1E]/60 mt-2 text-base max-w-2xl">
+                Selecciones especiales preparadas con amor. Perfectas para regalar o disfrutar en casa.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {boxes.map((box) => (
               <div
                 key={box.id}
-                className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100"
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-black/5 cursor-pointer"
                 onClick={() => setSelectedBox(box)}
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#F5F5F7]">
                   {box.image_url ? (
                     <img
                       src={box.image_url || "/placeholder.svg"}
@@ -147,28 +149,28 @@ export function BoxesSection() {
                     </span>
                   </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{box.name}</h3>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-xl text-gray-900 leading-tight mb-2">{box.name}</h3>
                   {box.description && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{box.description}</p>
+                    <p className="text-[#7C4A1E]/70 text-sm mb-4 line-clamp-2">{box.description}</p>
                   )}
-                  
+
                   {/* Cookies preview */}
                   {box.cookies.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Contenido:</p>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="mb-5 mt-auto">
+                      <p className="text-xs font-bold text-[#930021]/60 uppercase tracking-wider mb-2">Contenido</p>
+                      <div className="flex flex-wrap gap-1.5">
                         {box.cookies.slice(0, 4).map((bc) => (
                           <span
                             key={bc.cookie_id}
-                            className="inline-flex items-center gap-1 px-2 py-1 bg-[#F8E19A]/30 text-[#930021] rounded-full text-xs font-medium"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#F8E19A]/40 text-[#7C4A1E] rounded-md text-xs font-medium"
                           >
-                            {bc.cookie?.name || "Galleta"} x{bc.quantity}
+                            {bc.cookie?.name || "Galleta"} <strong className="text-[#930021]">x{bc.quantity}</strong>
                           </span>
                         ))}
                         {box.cookies.length > 4 && (
-                          <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                            +{box.cookies.length - 4} mas
+                          <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs">
+                            +{box.cookies.length - 4} más
                           </span>
                         )}
                       </div>
@@ -176,14 +178,14 @@ export function BoxesSection() {
                   )}
 
                   <Button
-                    className="w-full bg-[#930021] hover:bg-[#930021]/90 text-[#F8E19A] font-semibold"
+                    className="w-full h-11 mt-auto rounded-xl font-semibold bg-[#930021] hover:bg-[#7a001b] text-white transition-all"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleAddToCart(box)
                     }}
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    Agregar al Carrito
+                    Agregar
                   </Button>
                 </div>
               </div>

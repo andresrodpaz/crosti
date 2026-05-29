@@ -1,0 +1,178 @@
+# =====================================================================
+# E2E — Tests Playwright + Postman/Newman
+# Se ejecuta en PRs a main y manualmente desde Actions
+# =====================================================================
+name: E2E — Playwright & Postman
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # Permite ejecución manual desde GitHub UI
+    inputs:
+      base_url:
+        description: "URL del servidor a testear"
+        required: false
+        default: "http://localhost:3000"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+  NEXT_PUBLIC_LOYALTY_ENABLED: "true"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────
+  # JOB 1: Playwright E2E (UI + API)
+  # ───────────────────────────────────────────────────────────────────
+  playwright-e2e:
+    name: 🎭 Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      # No need for a DB service — we hit Supabase directly via env vars
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      NEXT_PUBLIC_LOYALTY_ENABLED: "true"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Build Next.js for E2E
+        run: pnpm build
+
+      - name: Start Next.js server in background
+        run: |
+          pnpm start &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+          # Wait for server to be ready
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Playwright tests — UI flows
+        run: pnpm exec playwright test tests/e2e/club-fidelizacion.spec.ts --reporter=html
+        continue-on-error: true
+
+      - name: Run Playwright tests — Admin panel
+        run: pnpm exec playwright test tests/e2e/club-admin.spec.ts --reporter=html
+        continue-on-error: true
+
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload Playwright traces (on failure)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces-${{ github.run_id }}
+          path: test-results/
+          retention-days: 7
+
+      - name: Publish E2E results as PR comment
+        if: github.event_name == 'pull_request' && always()
+        uses: daun/playwright-report-summary@v3
+        with:
+          report-file: playwright-report/index.html
+        continue-on-error: true
+
+      - name: Stop Next.js server
+        if: always()
+        run: kill $SERVER_PID || true
+
+  # ───────────────────────────────────────────────────────────────────
+  # JOB 2: Postman / Newman API Tests
+  # ───────────────────────────────────────────────────────────────────
+  postman-api-tests:
+    name: 📮 Postman API Tests (Newman)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [] # Runs in parallel with playwright
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      NEXT_PUBLIC_LOYALTY_ENABLED: "true"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Newman & reporters
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Build & start server
+        run: |
+          pnpm build
+          pnpm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Newman collection
+        run: |
+          newman run tests/postman/club-crosti-api.postman_collection.json \
+            --env-var "baseUrl=http://localhost:3000" \
+            --env-var "staffPin=1234" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export tests/postman/newman-report.html \
+            --reporter-htmlextra-title "Club Crosti — API Tests" \
+            --reporter-htmlextra-browserTitle "Club Crosti API" \
+            --bail
+
+      - name: Upload Newman HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report-${{ github.run_id }}
+          path: tests/postman/newman-report.html
+          retention-days: 30
