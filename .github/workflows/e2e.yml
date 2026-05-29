@@ -5,11 +5,11 @@
 name: E2E — Playwright & Postman
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch: # Permite ejecución manual desde GitHub UI
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
     inputs:
       base_url:
         description: "URL del servidor a testear"

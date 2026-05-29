@@ -5,9 +5,9 @@
 name: CD — Deploy to Production
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  # push:
+  #   branches: [main]
     inputs:
       force_deploy:
         description: "Forzar deploy aunque los tests fallen"

@@ -5,11 +5,11 @@
 name: Security — Dependency Audit
 
 on:
-  schedule:
-    - cron: "0 8 * * 1"  # Lunes a las 8:00 UTC
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+  # schedule:
+  #   - cron: "0 8 * * 1"  # Lunes a las 8:00 UTC
+  # pull_request:
+  #   branches: [main]
 
 jobs:
   # ───────────────────────────────────────────────────────────────────
