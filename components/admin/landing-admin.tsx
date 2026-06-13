@@ -71,6 +71,7 @@ export default function LandingAdmin({ onSuccess }: LandingAdminProps) {
   const [config, setConfig] = useState<LandingConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [activeTab, setActiveTab] = useState<"content" | "style">("content")
   const supabase = createClient()
@@ -134,19 +135,35 @@ export default function LandingAdmin({ onSuccess }: LandingAdminProps) {
     if (!files || !config) return
 
     const file = files[0]
-    const reader = new FileReader()
+    if (!file.type.startsWith("image/")) return
 
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string
+    setUploadingImage(true)
+    try {
+      const ext = file.name.split(".").pop() || "jpg"
+      const fileName = `landing-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { data, error } = await supabase.storage
+        .from("landing-images")
+        .upload(fileName, file, { upsert: false, contentType: file.type })
+
+      if (error) throw error
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("landing-images")
+        .getPublicUrl(data.path)
+
       if (field === "hero_image_url") {
-        setConfig({ ...config, hero_image_url: base64 })
+        setConfig({ ...config, hero_image_url: publicUrl })
       } else {
         const images = config.hero_images || []
-        setConfig({ ...config, hero_images: [...images, base64] })
+        setConfig({ ...config, hero_images: [...images, publicUrl] })
       }
+    } catch (error: any) {
+      console.error("Error uploading landing image:", error)
+      setMessage({ type: "error", text: `Error al subir imagen: ${error.message}` })
+      setTimeout(() => setMessage(null), 4000)
+    } finally {
+      setUploadingImage(false)
     }
-
-    reader.readAsDataURL(file)
   }
 
   const removeImage = (index: number) => {

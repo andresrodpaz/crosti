@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Work_Sans } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { ErrorSuppressor } from "@/components/error-boundary"
 import { Toaster } from "sonner"
 import "./globals.css"
@@ -34,8 +33,6 @@ export default function RootLayout({
         <ErrorSuppressor />
         {children}
         <Toaster position="top-center" richColors />
-        {/* </CHANGE> */}
-        <Analytics />
       </body>
     </html>
   )

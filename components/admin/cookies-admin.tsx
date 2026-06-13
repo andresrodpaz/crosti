@@ -49,6 +49,7 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
   const [colors, setColors] = useState<Color[]>([])    // colors de Supabase
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploadingImages, setUploadingImages] = useState(false)
   // Notificación visual integrada (reemplaza toast para mayor compatibilidad)
   const [notification, setNotification] = useState<{
     message: string
@@ -283,24 +284,48 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
 
   const handleImageDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    processImageFiles(e.dataTransfer.files)
+    void processImageFiles(e.dataTransfer.files)
   }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.currentTarget.files) processImageFiles(e.currentTarget.files)
+    if (e.currentTarget.files) void processImageFiles(e.currentTarget.files)
   }
 
-  const processImageFiles = (files: FileList) => {
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const imageUrl = e.target?.result as string
-          setFormData((prev) => ({ ...prev, imageUrls: [...prev.imageUrls, imageUrl] }))
+  const processImageFiles = async (files: FileList) => {
+    const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"))
+    if (imageFiles.length === 0) return
+
+    setUploadingImages(true)
+    try {
+      const supabase = createClient()
+      const uploadedUrls: string[] = []
+
+      for (const file of imageFiles) {
+        const ext = file.name.split(".").pop() || "jpg"
+        const fileName = `cookie-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        const { data, error } = await supabase.storage
+          .from("cookie-images")
+          .upload(fileName, file, { upsert: false, contentType: file.type })
+
+        if (error) {
+          console.error("[CookiesAdmin] Storage upload error:", error)
+          notify(`Error subiendo imagen: ${error.message}`, "error")
+          continue
         }
-        reader.readAsDataURL(file)
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("cookie-images")
+          .getPublicUrl(data.path)
+
+        uploadedUrls.push(publicUrl)
       }
-    })
+
+      if (uploadedUrls.length > 0) {
+        setFormData((prev) => ({ ...prev, imageUrls: [...prev.imageUrls, ...uploadedUrls] }))
+      }
+    } finally {
+      setUploadingImages(false)
+    }
   }
 
   const removeImage = (index: number) => {
@@ -847,13 +872,26 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
                 <div
                   onDrop={handleImageDrop}
                   onDragOver={(e) => e.preventDefault()}
-                  className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-[#930021] transition-colors cursor-pointer"
-                  onClick={() => document.getElementById("imageInput")?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+                    uploadingImages
+                      ? "border-[#930021] bg-red-50 cursor-wait"
+                      : "border-gray-200 hover:border-[#930021] cursor-pointer"
+                  }`}
+                  onClick={() => !uploadingImages && document.getElementById("imageInput")?.click()}
                 >
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-1">Arrastra imágenes o haz clic para seleccionar</p>
-                  <p className="text-xs text-gray-400">PNG, JPG hasta 5MB</p>
-                  <input id="imageInput" type="file" accept="image/*" multiple onChange={handleImageSelect} className="hidden" />
+                  {uploadingImages ? (
+                    <>
+                      <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                      <p className="text-sm text-[#930021] font-medium">Subiendo imagen...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 mb-1">Arrastra imágenes o haz clic para seleccionar</p>
+                      <p className="text-xs text-gray-400">PNG, JPG hasta 5MB</p>
+                    </>
+                  )}
+                  <input id="imageInput" type="file" accept="image/*" multiple onChange={handleImageSelect} className="hidden" disabled={uploadingImages} />
                 </div>
 
                 {formData.imageUrls.length > 0 && (
@@ -993,10 +1031,10 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
               <button
                 type="button"
                 onClick={handleSaveClick}
-                disabled={saving}
+                disabled={saving || uploadingImages}
                 className="flex-1 px-4 py-2.5 bg-[#930021] text-white rounded-xl hover:bg-[#7a001b] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? "Guardando..." : editingCookie ? "Guardar cambios" : "Crear galleta"}
+                {saving ? "Guardando..." : uploadingImages ? "Subiendo imagen..." : editingCookie ? "Guardar cambios" : "Crear galleta"}
               </button>
             </div>
           </div>
