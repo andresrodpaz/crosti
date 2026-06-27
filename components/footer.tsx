@@ -2,6 +2,7 @@
 
 import { Facebook, Instagram } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { defaultSocialSettings, getSocialSettingsFromSections } from "@/lib/social-settings"
@@ -27,10 +28,27 @@ export function Footer() {
             <Image src="/logo-footer.png" alt="Crosti Cookies" width={64} height={64} className="object-contain" />
           </div>
 
-          {/* Copyright - centered on mobile, normal on desktop */}
-          <p className="text-[#F9E7AE]/70 text-xs md:text-sm text-center order-last md:order-none">
-            © 2025 Crosti Barcelona. Todos los derechos reservados.
-          </p>
+          {/* Copyright and Legal - centered on mobile, normal on desktop */}
+          <div className="flex flex-col items-center gap-2 order-last md:order-none">
+            <p className="text-[#F9E7AE]/70 text-xs md:text-sm text-center">
+              © 2025 Crosti Barcelona. Todos los derechos reservados.
+            </p>
+            <div className="flex items-center justify-center gap-3 text-[#F9E7AE]/80 text-xs md:text-sm">
+              <Link 
+                href="/politica-privacidad" 
+                className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
+              >
+                Política de Privacidad
+              </Link>
+              <span>·</span>
+              <Link 
+                href="/aviso-legal"
+                className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
+              >
+                Aviso Legal
+              </Link>
+            </div>
+          </div>
 
           {/* Social Icons */}
           <div className="flex items-center gap-4 flex-shrink-0">
