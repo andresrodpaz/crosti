@@ -58,26 +58,25 @@ export function CrostiHero() {
         }
       `}</style>
 
-      {/* Mobile squiggle decoration */}
+      {/* Mobile squiggle decoration – fixed-size, anchored top-right */}
       <svg
-        className="block sm:hidden absolute inset-0 w-full h-full pointer-events-none z-[10]"
-        viewBox="0 0 390 844"
+        className="block sm:hidden absolute top-0 right-0 pointer-events-none z-[10]"
+        width="118"
+        height="370"
+        viewBox="0 0 118 370"
         xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid slice"
         stroke="#9b001c"
         fill="none"
-        strokeWidth="11"
+        strokeWidth="7"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M300 -50
-             C280 0,290 80,320 100
-             C330 110,345 95,340 80
-             C335 65,320 70,318 85
-             C315 200,350 220,380 240
-             C410 260,410 380,380 420
-             C360 450,380 500,390 560
-             C392 580,380 600,370 620" />
+        <path d="M93 -8
+             C73 36, 108 88, 98 126
+             C92 150, 76 145, 78 166
+             C81 192, 110 201, 112 231
+             C114 261, 98 290, 91 320
+             C86 342, 98 354, 104 370" />
       </svg>
 
       {/* Hero Content */}
@@ -85,18 +84,18 @@ export function CrostiHero() {
         <div className="grid md:grid-cols-2 gap-8 items-center w-full max-w-7xl mx-auto relative z-20">
           <div className="space-y-6 text-left">
             <h1
-              className="font-bold text-[#930021] leading-[1.1]"
-              style={{ fontSize: "clamp(3rem, 8vw, 6rem)" }}
+              className="font-bold text-[#930021] leading-[1.1] pr-10 sm:pr-0"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
             >
               <span className="block">
-                <span className="hero-word-fresh">Fresh&nbsp;</span>
-                <span className="hero-word-baked">baked</span>
+                <span className="hero-word-fresh">Todo empieza&nbsp;</span>
+                <span className="hero-word-baked">con un</span>
               </span>
               <span className="block relative">
-                <span className="hero-word-cookies">cookies</span>
-                {/* Animated wavy underline */}
+                <span className="hero-word-cookies">Crr-Crr-unch!</span>
+                {/* Animated wavy underline – hidden on mobile to avoid divider look */}
                 <svg
-                  className="absolute left-0 w-full overflow-visible"
+                  className="absolute left-0 w-full overflow-visible hidden sm:block"
                   style={{ bottom: "-10px", height: "14px" }}
                   viewBox="0 0 260 14"
                   preserveAspectRatio="none"
@@ -113,8 +112,8 @@ export function CrostiHero() {
                 </svg>
               </span>
             </h1>
-            <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal">
-              Galletas artesanales hechas con amor desde Barcelona
+            <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal pr-10 sm:pr-0">
+              Horneadas en Barcelona, shared everywhere.
             </p>
           </div>
 
@@ -128,7 +127,7 @@ export function CrostiHero() {
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover object-center scale-110 transition-transform duration-700 ease-in-out hover:scale-115"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
               {/* Subtle gradient overlay for polish */}
               <div

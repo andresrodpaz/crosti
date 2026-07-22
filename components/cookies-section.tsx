@@ -144,8 +144,9 @@ export function CookiesSection() {
         </div>
 
         <div className="relative">
+          {/* Desktop nav arrows — hidden on mobile */}
           {totalPages > 1 && (
-            <>
+            <div className="hidden md:block">
               <button
                 onClick={prevPage}
                 className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 p-3 bg-white rounded-full shadow-lg text-[#930021] hover:bg-[#930021] hover:text-white transition-all hover:scale-110 active:scale-95"
@@ -160,10 +161,80 @@ export function CookiesSection() {
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
-            </>
+            </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-8">
+          {/* ── MOBILE CAROUSEL ── swipeable, shows all cookies */}
+          <div
+            className="md:hidden flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory px-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
+          >
+            {cookies.map((cookie, idx) => {
+              const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
+              const hoverImage = getHoverImage(cookie)
+              const isHovered = hoveredCookie === cookie.id
+              const hasMultipleImages = (cookie.image_urls?.length || 0) > 1
+              return (
+                <div key={`m-${cookie.id}-${idx}`} className="snap-start shrink-0 w-[72vw]">
+                  <div
+                    className="rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group h-full"
+                    onClick={() => setSelectedCookie(cookie)}
+                    onMouseEnter={() => setHoveredCookie(cookie.id)}
+                    onMouseLeave={() => setHoveredCookie(null)}
+                  >
+                    <div className="bg-white aspect-[4/5] rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden">
+                      {cookie.badge?.visible && cookie.badge.text && (
+                        <StampBadge text={cookie.badge.text} bgColor={cookie.badge.bg_color} textColor={cookie.badge.text_color} />
+                      )}
+                      {mainImage ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={mainImage || "/placeholder.svg"}
+                            alt={cookie.name}
+                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+                              isHovered && hasMultipleImages ? "opacity-0 scale-105" : "opacity-100 scale-100"
+                            }`}
+                            loading="lazy"
+                          />
+                          {hasMultipleImages && (
+                            <img
+                              src={hoverImage || "/placeholder.svg"}
+                              alt={`${cookie.name} - alternativa`}
+                              className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+                                isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                              }`}
+                              loading="lazy"
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-gray-300 text-center">
+                          <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-xs">Imagen</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="bg-[#F5DFA0] p-5 rounded-b-3xl">
+                      <h3 className="text-[#930021] font-semibold text-center mb-1 text-base">{cookie.name}</h3>
+                      <p className="text-[#930021] font-bold text-center mb-3 text-xl">{cookie.price.toFixed(2)}€</p>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedCookie(cookie) }}
+                        className="w-full py-2.5 px-5 border-2 border-[#930021] rounded-full text-[#930021] font-medium text-sm hover:bg-[#930021] hover:text-[#F9E7AE] transition-all active:scale-95"
+                      >
+                        Ver detalles
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* ── DESKTOP GRID ── paginated 3-col */}
+          <div className="hidden md:grid md:grid-cols-3 gap-6 px-8">
             {visibleCookies.map((cookie, idx) => {
               const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
               const hoverImage = getHoverImage(cookie)
@@ -225,8 +296,8 @@ export function CookiesSection() {
                     )}
                   </div>
                   <div className="bg-[#F5DFA0] p-6 rounded-b-3xl group-hover:bg-[#F9E7AE] transition-colors">
-                    <h3 className="text-[#930021] font-semibold text-center mb-1 text-sm">{cookie.name}</h3>
-                    <p className="text-[#930021] font-bold text-center mb-4 text-lg">{cookie.price.toFixed(2)}€</p>
+                    <h3 className="text-[#930021] font-semibold text-center mb-1 text-lg">{cookie.name}</h3>
+                    <p className="text-[#930021] font-bold text-center mb-4 text-xl">{cookie.price.toFixed(2)}€</p>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -242,8 +313,9 @@ export function CookiesSection() {
             })}
           </div>
 
+          {/* Desktop pagination dots */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
+            <div className="hidden md:flex justify-center gap-2 mt-8">
               {Array.from({ length: totalPages }).map((_, index) => (
                 <button
                   key={index}

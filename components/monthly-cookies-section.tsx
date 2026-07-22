@@ -213,7 +213,7 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/10 opacity-100"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-[65%] bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                 
                 <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white w-full drop-shadow-xl">
                   {/* mobile stacking: text then price/button */}
@@ -283,7 +283,7 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                   alt={heroItem.cookie.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/10 opacity-100"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-[65%] bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
                 <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white drop-shadow-xl">
                   {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
