@@ -58,33 +58,12 @@ export function CrostiHero() {
         }
       `}</style>
 
-      {/* Mobile squiggle decoration – fixed-size, anchored top-right */}
-      <svg
-        className="block sm:hidden absolute top-0 right-0 pointer-events-none z-[10]"
-        width="118"
-        height="370"
-        viewBox="0 0 118 370"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="#9b001c"
-        fill="none"
-        strokeWidth="7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M93 -8
-             C73 36, 108 88, 98 126
-             C92 150, 76 145, 78 166
-             C81 192, 110 201, 112 231
-             C114 261, 98 290, 91 320
-             C86 342, 98 354, 104 370" />
-      </svg>
-
       {/* Hero Content */}
       <section className="relative px-4 md:px-8 lg:px-16 py-8 flex-1 flex items-center">
         <div className="grid md:grid-cols-2 gap-8 items-center w-full max-w-7xl mx-auto relative z-20">
           <div className="space-y-6 text-left">
             <h1
-              className="font-bold text-[#930021] leading-[1.1] pr-10 sm:pr-0"
+              className="font-bold text-[#930021] leading-[1.1]"
               style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
             >
               <span className="block">
@@ -112,7 +91,7 @@ export function CrostiHero() {
                 </svg>
               </span>
             </h1>
-            <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal pr-10 sm:pr-0">
+            <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal">
               Horneadas en Barcelona, shared everywhere.
             </p>
           </div>

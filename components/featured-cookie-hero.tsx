@@ -109,7 +109,7 @@ export function FeaturedCookieHero() {
       <div className="grid w-full grid-cols-1 sm:grid-cols-2 sm:h-[80vh] md:h-[80vh] lg:h-[80vh] xl:h-[80vh] 2xl:h-[80vh] 2xl:max-h-[800px]">
 
         {/* Image side */}
-        <div className="relative w-full overflow-hidden group bg-[#f7efe8] h-[65vw] sm:h-full order-2 sm:order-1">
+        <div className="relative w-full overflow-hidden group bg-[#f7efe8] h-[65vw] sm:h-full">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -137,43 +137,43 @@ export function FeaturedCookieHero() {
 
         {/* Content side */}
         <div
-          className={`flex flex-col bg-[#930021] px-6 py-8 sm:px-8 sm:py-0 sm:justify-center md:px-12 lg:px-16 xl:px-20 order-1 sm:order-2 ${textAlign === "center" ? "items-center text-center" : ""}`}
+          className={`flex flex-col bg-[#f7efe8] px-6 py-8 sm:px-8 sm:py-0 sm:justify-center md:px-12 lg:px-16 xl:px-20 ${textAlign === "center" ? "items-center text-center" : ""}`}
         >
           <p
             className="font-semibold tracking-[0.25em] uppercase mb-2 text-[10px] sm:text-[11px] lg:text-xs"
-            style={{ color: "rgba(255,255,255,0.65)" }}
+            style={{ color: `${accentColor}99` }}
           >
             Galleta del Mes
           </p>
 
           <h2
             className={`font-black leading-[1.05] mb-3 ${titleSizeClass}`}
-            style={{ fontFamily: font, color: "#ffffff" }}
+            style={{ fontFamily: font, color: accentColor }}
           >
             {cookie.name}
           </h2>
 
           <div className={`flex items-center gap-3 mb-3 ${textAlign === "center" ? "w-full max-w-xs" : ""}`}>
-            <div className="h-px flex-1 bg-white/20" />
-            <span className="text-white/40 text-xs">✶</span>
-            <div className="h-px flex-1 bg-white/20" />
+            <div className="h-px flex-1 bg-[#924C14]/30" />
+            <span className="text-[#924C14]/50 text-xs">✦</span>
+            <div className="h-px flex-1 bg-[#924C14]/30" />
           </div>
 
           <p
             className="leading-relaxed max-w-md mb-4 text-xs sm:text-sm lg:text-base"
-            style={{ color: "rgba(255,255,255,0.80)" }}
+            style={{ color: `${accentColor}cc` }}
           >
             {descText}
           </p>
 
-          <p className="font-bold mb-6 text-lg sm:text-xl" style={{ color: "#F8E19A" }}>
+          <p className="font-bold mb-6 text-lg sm:text-xl" style={{ color: accentColor }}>
             {cookie.price ? `€${Number(cookie.price).toFixed(2)}` : ""}
           </p>
 
           <button
             onClick={() => setShowModal(true)}
             className="inline-flex items-center justify-center rounded-full font-bold tracking-wide transition-all hover:scale-[1.02] active:scale-95 px-7 py-2.5 text-sm self-center sm:self-start sm:px-8 sm:py-3 sm:text-base"
-            style={{ backgroundColor: "#ffffff", color: "#930021" }}
+            style={{ backgroundColor: accentColor, color: "#f7efe8" }}
           >
             ¡Pruébala!
           </button>
