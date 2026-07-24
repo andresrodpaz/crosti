@@ -114,15 +114,10 @@ export function FeaturedCookieHero() {
             <img
               src={imageUrl}
               alt={cookie.name}
-              className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover object-center"
             />
           ) : (
             <div className="w-full h-full bg-[#C4965A]" />
-          )}
-
-          {/* Overlay */}
-          {overlayStyle !== "none" && overlayGradient && (
-            <div className="absolute inset-0" style={{ background: overlayGradient }} />
           )}
 
           {/* Badge mobile */}

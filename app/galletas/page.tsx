@@ -1,14 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Search, Filter, ArrowLeft } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Search, Filter } from "lucide-react"
 import { CookieDetailModal } from "@/components/cookie-detail-modal"
 import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
-import Image from "next/image"
 import { CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
 import { StampBadge } from "@/components/stamp-badge"
+import { createClient } from "@/lib/supabase/client"
 
 interface CookieItem {
   id: string
@@ -51,24 +51,54 @@ export default function GalletasPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set())
   const [hoveredCookie, setHoveredCookie] = useState<string | null>(null)
+  // IDs para prioridad en el catálogo
+  const [featuredCookieId, setFeaturedCookieId] = useState<string | null>(null)
+  const [seasonalCookieIds, setSeasonalCookieIds] = useState<string[]>([])
+
   useEffect(() => {
     loadData()
   }, [])
 
   async function loadData() {
     try {
-      const [tagsRes, cookiesRes] = await Promise.all([fetch("/api/tags"), fetch("/api/cookies?visible=true")])
+      const supabase = createClient()
+      const [tagsRes, cookiesRes, featuredRes] = await Promise.all([
+        fetch("/api/tags"),
+        fetch("/api/cookies?visible=true"),
+        fetch("/api/featured-cookie"),
+      ])
 
-      if (!tagsRes.ok || !cookiesRes.ok) {
-        throw new Error("Failed to load data from API")
-      }
+      if (!tagsRes.ok || !cookiesRes.ok) throw new Error("Failed to load data from API")
 
       const tagsData = await tagsRes.json()
       const cookiesData = await cookiesRes.json()
-      
-      if (cookiesData.error || tagsData.error) {
-        throw new Error("API returned an error")
+      if (cookiesData.error || tagsData.error) throw new Error("API returned an error")
+
+      // Featured cookie (Galleta del Mes)
+      let featuredId: string | null = null
+      if (featuredRes.ok) {
+        const featuredData = await featuredRes.json()
+        featuredId = featuredData?.id || null
       }
+      setFeaturedCookieId(featuredId)
+
+      // Seasonal cookies from active monthly collection
+      const { data: activeCollection } = await supabase
+        .from("monthly_collections")
+        .select("id")
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle()
+
+      let seasonalIds: string[] = []
+      if (activeCollection?.id) {
+        const { data: items } = await supabase
+          .from("monthly_collection_items")
+          .select("cookie_id")
+          .eq("collection_id", activeCollection.id)
+        seasonalIds = (items || []).map((i: any) => i.cookie_id).filter(Boolean)
+      }
+      setSeasonalCookieIds(seasonalIds)
 
       setTags(tagsData)
       setCookies(cookiesData)
@@ -114,8 +144,31 @@ export default function GalletasPage() {
     setSelectedTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]))
   }
 
-  const featuredCookies = filteredCookies.filter((cookie) => cookie.is_featured)
-  const regularCookies = filteredCookies.filter((cookie) => !cookie.is_featured)
+  // Sort: featured first ("Del mes"), then seasonal ("De temporada"), then the rest
+  const sortedCookies = useMemo(() => {
+    const featured = filteredCookies.filter((c) => c.id === featuredCookieId)
+    const seasonal = filteredCookies.filter(
+      (c) => c.id !== featuredCookieId && seasonalCookieIds.includes(c.id)
+    )
+    const rest = filteredCookies.filter(
+      (c) => c.id !== featuredCookieId && !seasonalCookieIds.includes(c.id)
+    )
+    return [...featured, ...seasonal, ...rest]
+  }, [filteredCookies, featuredCookieId, seasonalCookieIds])
+
+  // Resolve display badge for a cookie in the catalog
+  const getCatalogBadge = (cookie: CookieItem): { text: string; bg: string; fg: string } | null => {
+    if (cookie.id === featuredCookieId) {
+      return { text: "Del mes", bg: cookie.badge?.bg_color || "#930021", fg: cookie.badge?.text_color || "#F9E7AE" }
+    }
+    if (seasonalCookieIds.includes(cookie.id)) {
+      return { text: "De temporada", bg: "#924c14", fg: "#F9E7AE" }
+    }
+    if (cookie.badge?.visible && cookie.badge?.text) {
+      return { text: cookie.badge.text, bg: cookie.badge.bg_color || "#930021", fg: cookie.badge.text_color || "#F9E7AE" }
+    }
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-[#FFF3E2] flex flex-col">
@@ -204,68 +257,7 @@ export default function GalletasPage() {
           {filteredCookies.length} {filteredCookies.length === 1 ? "galleta encontrada" : "galletas encontradas"}
         </p> */}
 
-        {featuredCookies.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#930021] mb-6">Galletas del mes</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredCookies.map((cookie) => {
-                const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
-                const hoverImage = getHoverImage(cookie)
-                const isVisible = visibleCards.has(cookie.id)
-                const isHovered = hoveredCookie === cookie.id
-                const hasMultipleImages = (cookie.image_urls?.length || 0) > 1
-
-                return (
-                  <div
-                    key={`featured-${cookie.id}`}
-                    className={`rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group ${
-                      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                    }`}
-                    onClick={() => setSelectedCookie(cookie)}
-                    onMouseEnter={() => setHoveredCookie(cookie.id)}
-                    onMouseLeave={() => setHoveredCookie(null)}
-                  >
-                    <div className="bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors">
-                      <StampBadge
-                        text={cookie.badge?.text || "Del mes"}
-                        bgColor={cookie.badge?.bg_color}
-                        textColor={cookie.badge?.text_color}
-                      />
-                      {mainImage ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={mainImage || "/placeholder.svg"}
-                            alt={cookie.name}
-                            className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
-                              isHovered && hasMultipleImages ? "opacity-0 scale-105" : "opacity-100 scale-100"
-                            }`}
-                            loading="lazy"
-                          />
-                          {hasMultipleImages && (
-                            <img
-                              src={hoverImage || "/placeholder.svg"}
-                              alt={`${cookie.name} - alternativa`}
-                              className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
-                                isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                              }`}
-                              loading="lazy"
-                            />
-                          )}
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="bg-[#F5DFA0] p-6 rounded-b-3xl group-hover:bg-[#F9E7AE] transition-colors">
-                      <h3 className="text-[#930021] font-semibold text-center mb-1 text-sm">{cookie.name}</h3>
-                      <p className="text-[#930021] font-bold text-center mb-4 text-lg">{cookie.price.toFixed(2)}€</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        <h2 className="text-3xl md:text-4xl font-bold text-[#930021] mb-6">Todas las galletas</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-[#930021] mb-6">Nuestras galletas</h2>
         {/* Cookie Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
@@ -275,86 +267,87 @@ export default function GalletasPage() {
               gridClass="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             />
           ) : (
-            regularCookies.map((cookie) => {
-            const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
-            const hoverImage = getHoverImage(cookie)
-            const isVisible = visibleCards.has(cookie.id)
-            const isHovered = hoveredCookie === cookie.id
-            const hasMultipleImages = (cookie.image_urls?.length || 0) > 1
+            sortedCookies.map((cookie) => {
+              const mainImage = cookie.image_urls?.[cookie.main_image_index] || cookie.image_urls?.[0]
+              const hoverImage = getHoverImage(cookie)
+              const isVisible = visibleCards.has(cookie.id)
+              const isHovered = hoveredCookie === cookie.id
+              const hasMultipleImages = (cookie.image_urls?.length || 0) > 1
+              const catalogBadge = getCatalogBadge(cookie)
 
-            return (
-              <div
-                key={cookie.id}
-                className={`rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group ${
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                }`}
-                onClick={() => setSelectedCookie(cookie)}
-                onMouseEnter={() => setHoveredCookie(cookie.id)}
-                onMouseLeave={() => setHoveredCookie(null)}
-              >
-                {/* Image */}
-                <div className="
-                bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors
-                ">
-                  {cookie.badge?.visible && cookie.badge.text && (
-                    <StampBadge
-                      text={cookie.badge.text}
-                      bgColor={cookie.badge.bg_color}
-                      textColor={cookie.badge.text_color}
-                    />
-                  )}
-                  {mainImage ? (
-                    <div className="relative w-full h-full">
-                      <img
-                        src={mainImage || "/placeholder.svg"}
-                        alt={cookie.name}
-                        className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
-                          isHovered && hasMultipleImages ? "opacity-0 scale-105" : "opacity-100 scale-100"
-                        }`}
-                        loading="lazy"
+              return (
+                <div
+                  key={cookie.id}
+                  className={`rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group ${
+                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  }`}
+                  onClick={() => setSelectedCookie(cookie)}
+                  onMouseEnter={() => setHoveredCookie(cookie.id)}
+                  onMouseLeave={() => setHoveredCookie(null)}
+                >
+                  {/* Image */}
+                  <div className="bg-white aspect-square rounded-t-3xl border border-gray-200 flex items-center justify-center relative overflow-hidden group-hover:border-[#930021]/30 transition-colors">
+                    {catalogBadge && (
+                      <StampBadge
+                        text={catalogBadge.text}
+                        bgColor={catalogBadge.bg}
+                        textColor={catalogBadge.fg}
                       />
-                      {hasMultipleImages && (
+                    )}
+                    {mainImage ? (
+                      <div className="relative w-full h-full">
                         <img
-                          src={hoverImage || "/placeholder.svg"}
-                          alt={`${cookie.name} - alternativa`}
+                          src={mainImage || "/placeholder.svg"}
+                          alt={cookie.name}
                           className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
-                            isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                            isHovered && hasMultipleImages ? "opacity-0 scale-105" : "opacity-100 scale-100"
                           }`}
                           loading="lazy"
                         />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-gray-300 text-center">
-                      <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <p className="text-xs">Imagen</p>
-                    </div>
-                  )}
+                        {hasMultipleImages && (
+                          <img
+                            src={hoverImage || "/placeholder.svg"}
+                            alt={`${cookie.name} - alternativa`}
+                            className={`absolute inset-0 w-full h-full object-cover rounded-t-3xl transition-all duration-500 ${
+                              isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                            }`}
+                            loading="lazy"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-gray-300 text-center">
+                        <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <p className="text-xs">Imagen</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Card content */}
+                  <div className="bg-[#F5DFA0] p-6 rounded-b-3xl group-hover:bg-[#F9E7AE] transition-colors">
+                    <h3 className="text-[#930021] font-semibold text-center mb-1 text-sm">{cookie.name}</h3>
+                    <p className="text-[#930021] font-bold text-center mb-4 text-lg">
+                      {cookie.price && Number(cookie.price) > 0 ? `${Number(cookie.price).toFixed(2)}€` : ""}
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedCookie(cookie)
+                      }}
+                      className="w-full py-3 px-6 border-2 border-[#930021] rounded-full text-[#930021] font-medium text-sm hover:bg-[#930021] hover:text-[#F9E7AE] transition-all active:scale-95"
+                    >
+                      Ver detalles
+                    </button>
+                  </div>
                 </div>
-                {/* Card content */}
-                <div className="bg-[#F5DFA0] p-6 rounded-b-3xl group-hover:bg-[#F9E7AE] transition-colors">
-                  <h3 className="text-[#930021] font-semibold text-center mb-1 text-sm">{cookie.name}</h3>
-                  <p className="text-[#930021] font-bold text-center mb-4 text-lg">{cookie.price.toFixed(2)}€</p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedCookie(cookie)
-                    }}
-                    className="w-full py-3 px-6 border-2 border-[#930021] rounded-full text-[#930021] font-medium text-sm hover:bg-[#930021] hover:text-[#F9E7AE] transition-all active:scale-95"
-                  >
-                    Ver detalles
-                  </button>
-                </div>
-              </div>
-            )
-          })
+              )
+            })
           )}
         </div>
 

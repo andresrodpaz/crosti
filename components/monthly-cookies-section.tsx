@@ -17,7 +17,7 @@ export interface CollectionItem {
     image_urls?: string[]
     ingredients?: string[]
     main_image_index?: number
-      badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
+    badge?: { text?: string; bg_color?: string; text_color?: string; visible?: boolean }
     tags: { id?: string; name: string; color_hex: string }[]
   }
   is_hero: boolean
@@ -51,7 +51,7 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
     async function loadActiveCollection() {
       try {
         const supabase = createClient()
-        
+
         // 1. Get active collection — SECCION_GALLETA_DEL_MES has is_active=false so it's naturally excluded
         const { data: collectionData, error } = await supabase
           .from("monthly_collections")
@@ -90,23 +90,25 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
           .order("display_order")
 
         if (itemsData) {
-            // Helper to ensure image_urls is an array of strings
-            const parseImageUrls = (raw: any): string[] => {
-              if (Array.isArray(raw)) return raw;
-              try { return JSON.parse(raw) || []; } catch { return []; }
-            }
+          // Helper to ensure image_urls is an array of strings
+          const parseImageUrls = (raw: any): string[] => {
+            if (Array.isArray(raw)) return raw;
+            try { return JSON.parse(raw) || []; } catch { return []; }
+          }
 
-            // Map items
-            const items: CollectionItem[] = itemsData.map((item: any) => {
+          // Map items (filtering out any items with missing/deleted cookie reference)
+          const items: CollectionItem[] = itemsData
+            .filter((item: any) => item.cookie)
+            .map((item: any) => {
               const urls = parseImageUrls(item.cookie.image_urls);
               return {
                 is_hero: item.is_hero,
                 custom_tag: item.custom_tag,
                 cookie: {
                   id: item.cookie.id,
-                  name: item.cookie.name,
-                  description: item.cookie.description,
-                  price: item.cookie.price,
+                  name: item.cookie.name || "",
+                  description: item.cookie.description || "",
+                  price: item.cookie.price || 0,
                   image_url: urls[0] || "",
                   image_urls: urls,
                   ingredients: item.cookie.ingredients || [],
@@ -117,15 +119,15 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
               };
             })
 
-            setCollection({
-              title: collectionData.title,
-              subtitle: collectionData.subtitle,
-              description: collectionData.description,
-              bg_color: collectionData.bg_color || "#FEFCF5",
-              text_color: collectionData.text_color || "#924c14",
-              title_color: collectionData.title_color || "#930021",
-              items
-            })
+          setCollection({
+            title: collectionData.title,
+            subtitle: collectionData.subtitle,
+            description: collectionData.description,
+            bg_color: collectionData.bg_color || "#FEFCF5",
+            text_color: collectionData.text_color || "#924c14",
+            title_color: collectionData.title_color || "#930021",
+            items
+          })
         }
       } catch (err) {
         console.error("Error loading monthly collection", err)
@@ -198,112 +200,95 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
             {collection.subtitle}
           </p>
           {collection.description && (
-             <p className="text-lg max-w-3xl mx-auto leading-relaxed" style={{ color: collection.text_color ? `${collection.text_color}cc` : "#6B5B52" }}>
-               {collection.description}
-             </p>
+            <p className="text-lg max-w-3xl mx-auto leading-relaxed" style={{ color: collection.text_color ? `${collection.text_color}cc` : "#6B5B52" }}>
+              {collection.description}
+            </p>
           )}
         </div>
 
         {isSingleItem ? (
-          /* Single Item Layout - Centered & Featured */
+          /* Single Item Layout - Two-zone card: pure image + info panel below */
           <div className="max-w-4xl mx-auto">
-             <div className="relative group rounded-4xl overflow-hidden shadow-2xl aspect-[16/10]">
+            <div className="group rounded-3xl overflow-hidden shadow-xl border border-gray-100/80 bg-white">
+              {/* Image zone - full space + zoom */}
+              <div className="relative aspect-[16/10] w-full overflow-hidden">
                 <img
                   src={heroItem.cookie.image_url || "/placeholder.svg"}
                   alt={heroItem.cookie.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute bottom-0 left-0 right-0 h-[65%] bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                
-                <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white w-full drop-shadow-xl">
-                  {/* mobile stacking: text then price/button */}
-                  <div className="flex flex-col gap-6 md:hidden">
-                    <div className="max-w-2xl">
-                      {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
-                        <StampBadge
-                          text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
-                          bgColor={heroItem.cookie.badge?.bg_color}
-                          textColor={heroItem.cookie.badge?.text_color}
-                          className="!top-0 !right-0"
-                        />
-                      )}
-                      <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
-                      <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
-                        {heroItem.cookie.description}
-                      </p>
-                      <span className="text-3xl font-bold text-[#F8E19A] mb-4 drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
-                      <button 
-                        onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                        className="w-full px-8 py-3 rounded-full font-bold text-lg text-white hover:opacity-90 transition-all transform hover:scale-105 shadow-xl"
-                        style={{ backgroundColor: collection.title_color || '#930021' }}
-                      >
-                        Probar ahora
-                      </button>
-                    </div>
-                  </div>
-                  {/* desktop layout */}
-                  <div className="hidden md:flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-                    <div className="max-w-2xl">
-                      {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
-                        <StampBadge
-                          text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
-                          bgColor={heroItem.cookie.badge?.bg_color}
-                          textColor={heroItem.cookie.badge?.text_color}
-                          className="!top-0 !right-0"
-                        />
-                      )}
-                      <h3 className="font-sans text-4xl md:text-6xl font-bold mb-4 leading-tight">{heroItem.cookie.name}</h3>
-                      <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6 line-clamp-3 md:line-clamp-none">
-                        {heroItem.cookie.description}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-4 min-w-max">
-                      <span className="text-3xl md:text-5xl font-bold text-[#F8E19A] drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
-                      <button 
-                        onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                        className="px-8 py-3 rounded-full font-bold text-lg text-white hover:opacity-90 transition-all transform hover:scale-105 shadow-xl"
-                        style={{ backgroundColor: collection.title_color || '#930021' }}
-                      >
-                        Probar ahora
-                      </button>
-                    </div>
-                  </div>
-                </div>
-             </div>
-          </div>
-        ) : (
-          /* Grid Layout (Original) */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Hero Cookie */}
-            <div className="lg:col-span-7 relative group">
-              <div className="relative aspect-4/3 rounded-4xl overflow-hidden shadow-2xl">
-                <img
-                  src={heroItem.cookie.image_url || "/placeholder.svg"}
-                  alt={heroItem.cookie.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute bottom-0 left-0 right-0 h-[65%] bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-
-                <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white drop-shadow-xl">
-                  {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                  <div className="absolute top-4 left-4">
                     <StampBadge
                       text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
                       bgColor={heroItem.cookie.badge?.bg_color}
                       textColor={heroItem.cookie.badge?.text_color}
-                      className="!top-2 !right-2"
+                      className="!top-0 !right-0"
                     />
+                  </div>
+                )}
+              </div>
+              {/* Info panel */}
+              <div
+                className="px-6 py-5 md:px-10 md:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                style={{ backgroundColor: collection.title_color || '#930021' }}
+              >
+                <div className="min-w-0">
+                  <h3 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight mb-1 truncate">{heroItem.cookie.name}</h3>
+                  <p className="text-white/70 text-xs sm:text-sm line-clamp-1">{heroItem.cookie.description}</p>
+                </div>
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  <span className="text-2xl md:text-3xl font-bold text-[#F8E19A]">{heroItem.cookie.price.toFixed(2)}€</span>
+                  <button
+                    onClick={() => setSelectedCookie(heroItem.cookie as any)}
+                    className="px-5 py-2.5 rounded-full font-bold text-sm bg-white/95 hover:bg-[#F8E19A] transition-colors shadow"
+                    style={{ color: collection.title_color || '#930021' }}
+                  >
+                    Probar ahora
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Grid Layout - Two-zone card */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            {/* Hero Cookie */}
+            <div className="lg:col-span-7">
+              <div className="group rounded-3xl overflow-hidden shadow-xl border border-gray-100/80 bg-white">
+                {/* Image - full space + zoom */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <img
+                    src={heroItem.cookie.image_url || "/placeholder.svg"}
+                    alt={heroItem.cookie.name}
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {(heroItem.custom_tag || heroItem.cookie.badge?.visible) && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <StampBadge
+                        text={heroItem.custom_tag || heroItem.cookie.badge?.text || "Del mes"}
+                        bgColor={heroItem.cookie.badge?.bg_color}
+                        textColor={heroItem.cookie.badge?.text_color}
+                        className="!top-0 !right-0"
+                      />
+                    </div>
                   )}
-                  <h3 className="text-3xl md:text-4xl font-bold mb-3">{heroItem.cookie.name}</h3>
-                  <p className="text-white/90 mb-6 text-lg max-w-md line-clamp-2">
-                    {heroItem.cookie.description}
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl font-bold text-[#F9E7AE] drop-shadow-md">{heroItem.cookie.price.toFixed(2)}€</span>
-                    <button 
+                </div>
+                {/* Info panel */}
+                <div
+                  className="px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-4"
+                  style={{ backgroundColor: collection.title_color || '#930021' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg sm:text-xl font-bold text-white leading-tight truncate">{heroItem.cookie.name}</h3>
+                    <p className="text-white/80 text-xs sm:text-sm line-clamp-1 mt-0.5 hidden sm:block">{heroItem.cookie.description}</p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className="text-xl sm:text-2xl font-bold text-[#F8E19A]">{heroItem.cookie.price.toFixed(2)}€</span>
+                    <button
                       onClick={() => setSelectedCookie(heroItem.cookie as any)}
-                      className="px-6 py-2 rounded-full font-medium text-white hover:opacity-90 transition-colors shadow-md"
-                      style={{ backgroundColor: collection.title_color || '#930021' }}
+                      className="px-5 py-2 rounded-full font-bold text-xs sm:text-sm bg-white hover:bg-[#F8E19A] transition-all transform hover:scale-105 active:scale-95 shadow-md whitespace-nowrap"
+                      style={{ color: collection.title_color || '#930021' }}
                     >
                       Probar ahora
                     </button>
@@ -315,8 +300,8 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
             {/* Side Grid */}
             <div className="lg:col-span-5 flex flex-col gap-4">
               {otherItems.map((item) => (
-                <div 
-                  key={item.cookie.id} 
+                <div
+                  key={item.cookie.id}
                   onClick={() => setSelectedCookie(item.cookie as any)}
                   className="group cursor-pointer flex gap-4 items-center bg-white/70 backdrop-blur-sm border border-white hover:border-[#930021]/30 rounded-2xl p-3 shadow-sm hover:shadow-lg transition-all duration-300"
                 >
@@ -324,7 +309,7 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                     <img
                       src={item.cookie.image_url || "/placeholder.svg"}
                       alt={item.cookie.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     {item.custom_tag && (
                       <div className="absolute top-1 left-1">
@@ -341,19 +326,16 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
                     <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 mb-2 leading-relaxed">{item.cookie.description}</p>
                     <span className="text-sm font-bold text-[#924c14]">{item.cookie.price.toFixed(2)}€</span>
                   </div>
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 group-hover:bg-[#930021] flex items-center justify-center transition-colors">
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
-                  </div>
                 </div>
               ))}
 
-              <Link 
-                href="/galletas" 
+              <Link
+                href="/galletas"
                 className="flex items-center justify-center gap-2 py-3 px-6 rounded-full text-white font-medium transition-all duration-200 group mt-2 hover:opacity-90 shadow-md"
                 style={{ backgroundColor: collection.title_color || '#930021' }}
               >
                 Ver toda la colección
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                {/* <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> */}
               </Link>
             </div>
           </div>
@@ -361,9 +343,9 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
       </div>
 
       {selectedCookie && (
-        <CookieDetailModal 
-          cookie={selectedCookie} 
-          onClose={() => setSelectedCookie(null)} 
+        <CookieDetailModal
+          cookie={selectedCookie}
+          onClose={() => setSelectedCookie(null)}
         />
       )}
     </section>

@@ -33,7 +33,7 @@ export function Footer() {
             <p className="text-[#F9E7AE]/70 text-xs md:text-sm text-center">
               © 2025 Crosti Barcelona. Todos los derechos reservados.
             </p>
-            <div className="flex items-center justify-center gap-3 text-[#F9E7AE]/80 text-xs md:text-sm">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[#F9E7AE]/80 text-xs md:text-sm">
               <Link 
                 href="/politica-privacidad" 
                 className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
@@ -46,6 +46,13 @@ export function Footer() {
                 className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
               >
                 Aviso Legal
+              </Link>
+              <span>·</span>
+              <Link 
+                href="/faq"
+                className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
+              >
+                Preguntas Frecuentes
               </Link>
             </div>
           </div>

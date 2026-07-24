@@ -8,7 +8,13 @@ export function CrostiHero() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.75
-      videoRef.current.play().catch(() => {})
+      // Delay video playback to match the late entry animation delay of 1.2s
+      const playTimeout = setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(() => {})
+        }
+      }, 1200)
+      return () => clearTimeout(playTimeout)
     }
   }, [])
 
@@ -55,7 +61,7 @@ export function CrostiHero() {
           animation: float-up 0.8s cubic-bezier(.22,1,.36,1) 0.8s both;
         }
         .video-container {
-          animation: float-up 0.9s cubic-bezier(.22,1,.36,1) 0.2s both;
+          animation: float-up 0.9s cubic-bezier(.22,1,.36,1) 1.2s both;
         }
       `}</style>
 
@@ -73,27 +79,10 @@ export function CrostiHero() {
               </span>
               <span className="block relative">
                 <span className="hero-word-cookies">Crr-Crr-unch!</span>
-                {/* Animated wavy underline – hidden on mobile to avoid divider look */}
-                <svg
-                  className="absolute left-0 w-full overflow-visible hidden sm:block"
-                  style={{ bottom: "-10px", height: "14px" }}
-                  viewBox="0 0 260 14"
-                  preserveAspectRatio="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    className="hero-underline"
-                    d="M2 8 C30 2, 60 14, 90 8 S150 2, 180 8 S240 14, 260 8"
-                    stroke="#930021"
-                    strokeWidth="3"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                </svg>
               </span>
             </h1>
             <p className="hero-subtitle text-[#930021] text-lg md:text-xl font-normal">
-              Horneadas en Barcelona, shared everywhere.
+              Horneadas en Barcelona, loved everywhere.
             </p>
           </div>
 
@@ -103,7 +92,6 @@ export function CrostiHero() {
               <video
                 ref={videoRef}
                 src="/images/video-hero.mp4"
-                autoPlay
                 loop
                 muted
                 playsInline

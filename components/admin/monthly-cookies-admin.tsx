@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Edit2, Trash2, Eye, Save, X, Search, Check, Star, ChevronRight, ChevronLeft, Layers, Palette, Cookie, Sparkles, ToggleLeft, ToggleRight, ArrowUp, ArrowDown } from "lucide-react"
+import { Plus, Edit2, Trash2, Eye, Save, X, Search, Check, Star, ChevronRight, ChevronLeft, Layers, Palette, Cookie, Sparkles, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -77,6 +76,11 @@ export function MonthlyCookiesAdmin() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<MonthlyCollection | null>(null)
   const [collectionToDelete, setCollectionToDelete] = useState<MonthlyCollection | null>(null)
+
+  // Loading / Submitting States (to prevent double-clicks)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   // Wizard step
   const [currentStep, setCurrentStep] = useState(1)
@@ -205,6 +209,8 @@ export function MonthlyCookiesAdmin() {
   }
 
   const handleSave = async () => {
+    if (saving) return
+    setSaving(true)
     try {
       if (!formData.title) return
 
@@ -243,10 +249,12 @@ export function MonthlyCookiesAdmin() {
 
       toast({ title: "✅ Guardado", description: "La colección se ha guardado correctamente" })
       setIsDialogOpen(false)
-      loadCollections()
+      await loadCollections()
     } catch (error) {
       console.error("Error saving:", error)
       toast({ variant: "destructive", title: "Error", description: "Ocurrió un error al guardar" })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -283,27 +291,38 @@ export function MonthlyCookiesAdmin() {
   }
 
   const toggleActiveStatus = async (collection: MonthlyCollection) => {
-    if (!collection.is_active) {
-      await supabase.from("monthly_collections").update({ is_active: false, status: "archived" }).eq("is_active", true)
+    if (togglingId === collection.id) return
+    setTogglingId(collection.id)
+    try {
+      if (!collection.is_active) {
+        await supabase.from("monthly_collections").update({ is_active: false, status: "archived" }).eq("is_active", true)
+      }
+      const newStatus = !collection.is_active
+      await supabase
+        .from("monthly_collections")
+        .update({ is_active: newStatus, status: newStatus ? "active" : "draft" })
+        .eq("id", collection.id)
+      await loadCollections()
+    } catch (err) {
+      console.error("Error toggling status:", err)
+      toast({ variant: "destructive", title: "Error", description: "No se pudo cambiar el estado" })
+    } finally {
+      setTogglingId(null)
     }
-    const newStatus = !collection.is_active
-    await supabase
-      .from("monthly_collections")
-      .update({ is_active: newStatus, status: newStatus ? "active" : "draft" })
-      .eq("id", collection.id)
-    loadCollections()
   }
 
   const handleDelete = async () => {
-    if (!collectionToDelete) return
+    if (!collectionToDelete || deleting) return
+    setDeleting(true)
     try {
       const { error } = await supabase.from("monthly_collections").delete().eq("id", collectionToDelete.id)
       if (error) throw error
       toast({ title: "Colección eliminada" })
-      loadCollections()
+      await loadCollections()
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Ocurrió un error al eliminar" })
     } finally {
+      setDeleting(false)
       setCollectionToDelete(null)
     }
   }
@@ -455,14 +474,17 @@ export function MonthlyCookiesAdmin() {
               <div className="flex items-center gap-1 ml-auto">
                 <button
                   onClick={() => toggleActiveStatus(collection)}
+                  disabled={togglingId === collection.id}
                   title={collection.is_active ? "Desactivar" : "Activar"}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 ${
                     collection.is_active
                       ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                       : "bg-gray-50 text-gray-500 hover:bg-gray-100"
                   }`}
                 >
-                  {collection.is_active ? (
+                  {togglingId === collection.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#930021]" />
+                  ) : collection.is_active ? (
                     <ToggleRight className="w-4 h-4" />
                   ) : (
                     <ToggleLeft className="w-4 h-4" />
@@ -879,9 +901,18 @@ export function MonthlyCookiesAdmin() {
               ) : (
                 <Button
                   onClick={handleSave}
-                  className="bg-[#930021] hover:bg-[#7a001b] text-white gap-2 rounded-xl px-6"
+                  disabled={saving}
+                  className="bg-[#930021] hover:bg-[#7a001b] text-white gap-2 rounded-xl px-6 disabled:opacity-60"
                 >
-                  <Save className="w-4 h-4" /> Guardar Colección
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" /> Guardar Colección
+                    </>
+                  )}
                 </Button>
               )}
             </div>
@@ -899,9 +930,15 @@ export function MonthlyCookiesAdmin() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 rounded-xl">
-              Sí, eliminar
+            <AlertDialogCancel disabled={deleting} className="rounded-xl">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700 rounded-xl disabled:opacity-60">
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> Eliminando...
+                </>
+              ) : (
+                "Sí, eliminar"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

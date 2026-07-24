@@ -122,12 +122,11 @@ export function ReelsSection() {
         {GALLERY_ITEMS.map((item, idx) => (
           <div
             key={idx}
-            className="group relative shrink-0 rounded-2xl overflow-hidden bg-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+            className="group relative shrink-0 rounded-2xl overflow-hidden bg-zinc-900 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] block"
             style={{
               scrollSnapAlign: "start",
               opacity: 0,
               animation: `fadeUp 0.5s ease forwards ${idx * 0.06}s`,
-              // Safari border-radius + transform fix
               WebkitMaskImage: "-webkit-radial-gradient(white, black)",
               transform: "translateZ(0)",
             }}
@@ -152,16 +151,6 @@ export function ReelsSection() {
             )}
 
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/20 backdrop-blur-[2px] pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.3)] transform scale-50 group-hover:scale-100 transition-transform duration-500">
-                <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-              </div>
-            </div>
           </div>
         ))}
       </div>
