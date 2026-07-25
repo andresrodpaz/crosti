@@ -10,7 +10,7 @@ const workSans = Work_Sans({ subsets: ["latin"], variable: "--font-work-sans" })
 export const metadata: Metadata = {
   title: "Crosti Cookies | Galletas Horneadas en Barcelona, loved everywhere.",
   description:
-    "Crosti es la pastelería de galletas artesanales de Barcelona. Horneadas frescas a diario con ingredientes premium, disponibles para pickup y envío en toda la ciudad. | Crosti is Barcelona's artisan cookie bakery. Freshly baked daily with premium ingredients, available for pickup and delivery across the city.",
+    "Galletas artesanales horneadas frescas cada día en Barcelona. Ingredientes premium, sabores únicos y envío a domicilio. ¡Pide ya en Crosti!",
   keywords: [
     "galletas artesanales Barcelona",
     "mejores galletas Barcelona",
