@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server"
+import { createPublicClient } from "@/lib/supabase/public"
 import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     // 1. Get active collection (simple query, no joins)
     const { data: collectionData, error: collectionError } = await supabase
@@ -92,7 +92,7 @@ export async function GET() {
         title_color: collectionData.title_color || "#930021",
         items,
       },
-      { headers: { "Cache-Control": "no-store, max-age=0" } }
+      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
     )
   } catch (error) {
     console.error("[Message] Unexpected error in monthly-collection API:", error)

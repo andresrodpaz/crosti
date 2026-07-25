@@ -1,9 +1,10 @@
+import { createPublicClient } from "@/lib/supabase/public"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { searchParams } = new URL(request.url)
     const showAll = searchParams.get("all") === "true"
 
@@ -28,10 +29,14 @@ export async function GET(request: Request) {
         if (banner.ends_at && new Date(banner.ends_at) < now) return false
         return true
       })
-      return NextResponse.json(activeBanners)
+      return NextResponse.json(activeBanners, {
+        headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+      })
     }
 
-    return NextResponse.json(data || [])
+    return NextResponse.json(data || [], {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    })
   } catch (error) {
     console.error("[Message] Unexpected error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createPublicClient } from "@/lib/supabase/public"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const includeAll = searchParams.get("all") === "true"
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     // ── 1. Fetch cookies (simple, fast query) ─────────────────────
     let cookieQuery = supabase.from("cookies").select("*")
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     }))
 
     return NextResponse.json(formattedCookies, {
-      headers: { "Cache-Control": "no-store, max-age=0" },
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
     })
   } catch (error) {
     console.error("[Message] Unexpected error in cookies API:", error)

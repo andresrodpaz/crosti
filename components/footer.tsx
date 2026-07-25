@@ -3,21 +3,10 @@
 import { Facebook, Instagram } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { defaultSocialSettings, getSocialSettingsFromSections } from "@/lib/social-settings"
+import { defaultSocialSettings } from "@/lib/social-settings"
 
 export function Footer() {
-  const [social, setSocial] = useState(defaultSocialSettings)
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
-      const { data } = await supabase.from("landing_config").select("sections").single()
-      setSocial(getSocialSettingsFromSections(data?.sections))
-    }
-    load()
-  }, [])
+  const social = defaultSocialSettings
 
   return (
     <footer className="bg-[#924C14] py-6 px-4 md:px-8">

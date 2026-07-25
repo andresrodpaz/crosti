@@ -1,10 +1,11 @@
+import { createPublicClient } from "@/lib/supabase/public"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 // GET /api/featured-cookie — Devuelve la galleta del mes activa con sus datos completos
 export async function GET() {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     const { data: featuredRows, error } = await supabase
       .from("featured_cookie")
@@ -72,7 +73,7 @@ export async function GET() {
       tags,
       cookie_tags: undefined
     }, {
-      headers: { 'Cache-Control': 'no-store, max-age=0' }
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
     })
   } catch (err) {
     console.error("[featured-cookie GET]", err)
