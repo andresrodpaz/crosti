@@ -5,76 +5,66 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const carouselOnly = searchParams.get("carousel") === "true"
   const visibleOnly = searchParams.get("visible") === "true"
+  const includeAll = searchParams.get("all") === "true"
 
   try {
     const supabase = await createClient()
 
-    // Optimize query to include tags in a single request
-    let query = supabase.from("cookies").select(`
-      *,
-      cookie_tags (
-        tags (
-          id,
-          name,
-          color_id,
-          colors (
-            hex
-          )
-        )
-      )
-    `)
-
-    const includeAll = searchParams.get("all") === "true"
+    // ── 1. Fetch cookies (simple, fast query) ─────────────────────
+    let cookieQuery = supabase.from("cookies").select("*")
 
     if (carouselOnly) {
-      query = query.eq("in_carousel", true).order("carousel_order", { ascending: true }).limit(8)
+      cookieQuery = cookieQuery
+        .eq("in_carousel", true)
+        .order("carousel_order", { ascending: true })
+        .limit(8)
     } else if (visibleOnly || !includeAll) {
-      query = query.eq("is_visible", true).order("name")
+      cookieQuery = cookieQuery.eq("is_visible", true).order("name")
     } else {
-      query = query.order("name")
+      cookieQuery = cookieQuery.order("name")
     }
 
-    const { data: cookiesData, error } = await query
+    // ── 2. Fetch tag map in parallel (simple join, fast) ──────────
+    const [{ data: cookiesData, error: cookiesError }, { data: tagData }] =
+      await Promise.all([
+        cookieQuery,
+        supabase
+          .from("cookie_tags")
+          .select("cookie_id, tags ( id, name, colors ( hex ) )"),
+      ])
 
-    if (error) {
-      console.error("[Message] Database error fetching cookies:", error)
-      return NextResponse.json({ error: error.message, cookies: [] }, { status: 500 })
+    if (cookiesError) {
+      console.error("[Message] Database error fetching cookies:", cookiesError)
+      return NextResponse.json(
+        { error: cookiesError.message, cookies: [] },
+        { status: 500 }
+      )
     }
 
-    if (cookiesData && cookiesData.length > 0) {
-      const formattedCookies = cookiesData.map((cookie) => {
-        // Flatten the nested structure from the join
-        const tags = cookie.cookie_tags?.map((ct: any) => ({
-             id: ct.tags?.id,
-             name: ct.tags?.name,
-             color_hex: ct.tags?.colors?.hex || "#6b7280"
-        })).filter((t: any) => t.id) || []
-
-        let imageUrls: string[] = []
-        if (cookie.image_urls) {
-          imageUrls = Array.isArray(cookie.image_urls) ? cookie.image_urls : []
-        }
-
-        return {
-          ...cookie,
-          image_urls: imageUrls,
-          main_image_index: cookie.main_image_index || 0,
-          tags,
-          featured_description: cookie.featured_description || "",
-          // remove raw relation data
-          cookie_tags: undefined
-        }
-      })
-      
-      return NextResponse.json(formattedCookies, {
-        headers: {
-            // Desactivamos cache temporalmente para evitar reportes falsos de "no se actualiza"
-            'Cache-Control': 'no-store, max-age=0'
-        }
+    // Build a fast lookup: cookie_id → tags[]
+    const tagsByCookieId: Record<string, { id: string; name: string; color_hex: string }[]> = {}
+    for (const row of tagData ?? []) {
+      const tag = row.tags as any
+      if (!tag?.id) continue
+      if (!tagsByCookieId[row.cookie_id]) tagsByCookieId[row.cookie_id] = []
+      tagsByCookieId[row.cookie_id].push({
+        id: tag.id,
+        name: tag.name,
+        color_hex: tag.colors?.hex ?? "#6b7280",
       })
     }
 
-    return NextResponse.json([])
+    const formattedCookies = (cookiesData ?? []).map((cookie) => ({
+      ...cookie,
+      image_urls: Array.isArray(cookie.image_urls) ? cookie.image_urls : [],
+      main_image_index: cookie.main_image_index || 0,
+      tags: tagsByCookieId[cookie.id] ?? [],
+      featured_description: cookie.featured_description || "",
+    }))
+
+    return NextResponse.json(formattedCookies, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    })
   } catch (error) {
     console.error("[Message] Unexpected error in cookies API:", error)
     const message = error instanceof Error ? error.message : "Internal server error"
