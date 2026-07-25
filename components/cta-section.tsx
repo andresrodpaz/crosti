@@ -34,11 +34,11 @@ export function CTASection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
           <Link
-            href="/tienda"
+            href="/galletas"
             className="inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 bg-white text-[#930021] rounded-full font-semibold text-sm hover:bg-[#F8E19A] hover:text-[#930021] transition-colors"
           >
             <ShoppingBag className="w-4 h-4" />
-            Comprar Online
+            Ver Galletas
           </Link>
           <a
             href="#contacto"

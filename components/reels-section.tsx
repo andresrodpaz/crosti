@@ -18,6 +18,13 @@ const GALLERY_ITEMS = [
   { type: "video", src: "/reels/crosti-reel-7.mp4", caption: "Imprescindibles" },
   { type: "video", src: "/reels/crosti-reel-8.mp4", caption: "Fresh & golden" },
   { type: "video", src: "/reels/crosti-reel-9.mp4", caption: "Craft cookies" },
+  { type: "video", src: "/reels/crosti-reel-10.mp4", caption: "Brigadeiro Cookie" },
+  { type: "video", src: "/reels/crosti-reel-11.mp4", caption: "Ice Cream and cookies" },
+  { type: "video", src: "/reels/crosti-reel-12.mp4", caption: "Craft cookies" },
+  { type: "video", src: "/reels/crosti-reel-13.mp4", caption: "Craft cookies" },
+  { type: "video", src: "/reels/crosti-reel-14.mp4", caption: "Craft cookies" },
+  { type: "video", src: "/reels/crosti-reel-15.mp4", caption: "Craft cookies" },
+
 ] as const
 
 export function ReelsSection() {

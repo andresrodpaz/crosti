@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, X, Star, Award } from "lucide-react"
+import { LogOut, Cookie, Palette, Tag, ChevronRight, LayoutDashboard, ShoppingBag, Sparkles, Package, Calendar, BookOpen, Menu, Star, Award } from "lucide-react"
 import { CookiesAdmin } from "@/components/admin/cookies-admin"
 import { ColorsAdmin } from "@/components/admin/colors-admin"
 import { TagsAdmin } from "@/components/admin/tags-admin"
@@ -87,7 +87,7 @@ export default function AdminPage() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/50" onClick={handleLogout} />
           <div className="fixed left-0 top-0 bottom-0 w-64 bg-white shadow-xl">
             <div className="p-6 border-b border-gray-100">
               <div className="flex items-center justify-between">
@@ -101,10 +101,11 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600"
+                  onClick={handleLogout}
+                  title="Cerrar sesión"
+                  className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <LogOut className="w-5 h-5" />
                 </button>
               </div>
             </div>

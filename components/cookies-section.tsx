@@ -139,7 +139,7 @@ export function CookiesSection() {
     <section id="galletas" className="bg-[#FFF3E2] py-16 px-8 lg:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Mas vendidas</h2>
+          <h2 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Best Seller</h2>
           <p className="text-[#930021]/80 text-sm">Haz clic para ver ingredientes y detalles</p>
         </div>
 

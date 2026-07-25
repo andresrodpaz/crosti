@@ -33,7 +33,8 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
     { name: "Nosotros", action: () => scrollToSection("nosotros") },
     { name: "Galletas", href: "/galletas" },
     { name: "Contacto", action: () => scrollToSection("contacto") },
-    { name: "Tienda", href: "/tienda" },
+    // TODO: Re-enable when store is ready to launch
+    // { name: "Tienda", href: "/tienda" },
   ]
 
   return (
