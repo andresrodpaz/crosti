@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { ArrowRight, Star, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { CookieSkeletonCard, CookieSkeletonGrid } from "@/components/ui/cookie-skeleton"
@@ -50,85 +49,28 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
 
     async function loadActiveCollection() {
       try {
-        const supabase = createClient()
-
-        // 1. Get active collection — SECCION_GALLETA_DEL_MES has is_active=false so it's naturally excluded
-        const { data: collectionData, error } = await supabase
-          .from("monthly_collections")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle()
-
-        if (error || !collectionData) {
-          console.log("MonthlyCookiesSection: No active collection found", { error, collectionData })
+        const res = await fetch("/api/monthly-collection", { cache: "no-store" })
+        if (!res.ok) {
+          console.log("MonthlyCookiesSection: API error", res.status)
           setLoading(false)
           return
         }
-
-        console.log("MonthlyCookiesSection: Active collection found", collectionData)
-
-        // 2. Get items with cookie details
-        const { data: itemsData } = await supabase
-          .from("monthly_collection_items")
-          .select(`
-            is_hero,
-            custom_tag,
-            display_order,
-            cookie:cookies (
-              id,
-              name,
-              description,
-              price,
-              image_urls,
-              ingredients,
-              main_image_index
-            )
-          `)
-          .eq("collection_id", collectionData.id)
-          .order("display_order")
-
-        if (itemsData) {
-          // Helper to ensure image_urls is an array of strings
-          const parseImageUrls = (raw: any): string[] => {
-            if (Array.isArray(raw)) return raw;
-            try { return JSON.parse(raw) || []; } catch { return []; }
-          }
-
-          // Map items (filtering out any items with missing/deleted cookie reference)
-          const items: CollectionItem[] = itemsData
-            .filter((item: any) => item.cookie)
-            .map((item: any) => {
-              const urls = parseImageUrls(item.cookie.image_urls);
-              return {
-                is_hero: item.is_hero,
-                custom_tag: item.custom_tag,
-                cookie: {
-                  id: item.cookie.id,
-                  name: item.cookie.name || "",
-                  description: item.cookie.description || "",
-                  price: item.cookie.price || 0,
-                  image_url: urls[0] || "",
-                  image_urls: urls,
-                  ingredients: item.cookie.ingredients || [],
-                  main_image_index: item.cookie.main_image_index || 0,
-                  badge: undefined,
-                  tags: []
-                }
-              };
-            })
-
-          setCollection({
-            title: collectionData.title,
-            subtitle: collectionData.subtitle,
-            description: collectionData.description,
-            bg_color: collectionData.bg_color || "#FEFCF5",
-            text_color: collectionData.text_color || "#924c14",
-            title_color: collectionData.title_color || "#930021",
-            items
-          })
+        const data = await res.json()
+        if (!data || !data.items || data.items.length === 0) {
+          console.log("MonthlyCookiesSection: No active collection found", data)
+          setLoading(false)
+          return
         }
+        console.log("MonthlyCookiesSection: Active collection found", data)
+        setCollection({
+          title: data.title,
+          subtitle: data.subtitle,
+          description: data.description,
+          bg_color: data.bg_color || "#FEFCF5",
+          text_color: data.text_color || "#924c14",
+          title_color: data.title_color || "#930021",
+          items: data.items,
+        })
       } catch (err) {
         console.error("Error loading monthly collection", err)
       } finally {
@@ -140,6 +82,7 @@ export function MonthlyCookiesSection({ previewData }: { previewData?: MonthlyCo
       loadActiveCollection()
     }
   }, [previewData])
+
 
   if (loading) {
     return (
