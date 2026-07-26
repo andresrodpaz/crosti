@@ -133,8 +133,13 @@ export function SingleMonthCookieAdmin() {
     async function load() {
       try {
         const res = await fetch("/api/cookies?all=true", { cache: "no-store" })
-        const data = await res.json()
-        setCookies(Array.isArray(data) ? data : [])
+        if (res.ok) {
+          const data = await res.json()
+          setCookies(Array.isArray(data) ? data : [])
+        } else {
+          console.error("[SingleMonthCookieAdmin] API error:", res.status)
+          setCookies([])
+        }
 
         const fRes = await fetch("/api/featured-cookie", { cache: "no-store" })
         const fData = await fRes.json()

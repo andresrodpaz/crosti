@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     }
 
     // ── 2. Fetch tag map in parallel (simple join, fast) ──────────
-    const [{ data: cookiesData, error: cookiesError }, { data: tagData }] =
+    const [{ data: cookiesData, error: cookiesError }, { data: tagData, error: tagError }] =
       await Promise.all([
         cookieQuery,
         supabase
@@ -41,6 +41,10 @@ export async function GET(request: Request) {
       )
     }
 
+    if (tagError) {
+      console.warn("[Message] Database warning fetching cookie tags:", tagError)
+    }
+
     // Build a fast lookup: cookie_id → tags[]
     const tagsByCookieId: Record<string, { id: string; name: string; color_hex: string }[]> = {}
     for (const row of tagData ?? []) {
@@ -54,16 +58,27 @@ export async function GET(request: Request) {
       })
     }
 
-    const formattedCookies = (cookiesData ?? []).map((cookie) => ({
-      ...cookie,
-      image_urls: Array.isArray(cookie.image_urls) ? cookie.image_urls : [],
-      main_image_index: cookie.main_image_index || 0,
-      tags: tagsByCookieId[cookie.id] ?? [],
-      featured_description: cookie.featured_description || "",
-    }))
+    const formattedCookies = (cookiesData ?? []).map((cookie) => {
+      const rawUrls = Array.isArray(cookie.image_urls) ? cookie.image_urls : []
+      const imageUrls = rawUrls.map((url: string) =>
+        typeof url === "string" && url.startsWith("data:image")
+          ? (cookie.image_url && !cookie.image_url.startsWith("data:image")
+              ? cookie.image_url
+              : "/stack-of-delicious-chocolate-chip-cookies-on-white.jpg")
+          : url
+      )
+
+      return {
+        ...cookie,
+        image_urls: imageUrls,
+        main_image_index: cookie.main_image_index || 0,
+        tags: tagsByCookieId[cookie.id] ?? [],
+        featured_description: cookie.featured_description || "",
+      }
+    })
 
     return NextResponse.json(formattedCookies, {
-      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+      headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
     })
   } catch (error) {
     console.error("[Message] Unexpected error in cookies API:", error)

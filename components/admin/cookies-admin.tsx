@@ -109,7 +109,13 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
         const supabase = createClient()
 
         // 1. Obtener galletas desde la API route
-        const response = await fetch("/api/cookies")
+        const response = await fetch("/api/cookies", { cache: "no-store" })
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}))
+          console.error("[CookiesAdmin] API error:", response.status, errData)
+          setCookies([])
+          return
+        }
         const cookiesData = await response.json()
 
         if (!Array.isArray(cookiesData)) {
@@ -446,9 +452,9 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
 
   // Recarga las galletas desde /api/cookies y actualiza el estado
   const reloadCookies = async () => {
-    const response = await fetch("/api/cookies")
+    const response = await fetch("/api/cookies", { cache: "no-store" })
     if (!response.ok) {
-      const errorData = await response.json()
+      const errorData = await response.json().catch(() => ({}))
       throw new Error(errorData.error || "Error al obtener las galletas")
     }
     const cookiesData = await response.json()
@@ -856,7 +862,7 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
                       }`}
                       style={
                         formData.tags.includes(tag.id)
-                          ? { backgroundColor: tag.color_hex || "#6B7280", ringColor: tag.color_hex }
+                          ? { backgroundColor: tag.color_hex || "#6B7280", boxShadow: `0 0 0 2px ${tag.color_hex || "#6B7280"}` }
                           : {}
                       }
                     >

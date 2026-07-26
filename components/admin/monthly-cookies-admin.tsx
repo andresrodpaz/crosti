@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Plus, Edit2, Trash2, Eye, Save, X, Search, Check, Star, ChevronRight, ChevronLeft, Layers, Palette, Cookie, Sparkles, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -132,7 +133,11 @@ export function MonthlyCookiesAdmin() {
 
   async function loadAvailableCookies() {
     try {
-      const res = await fetch("/api/cookies?all=true")
+      const res = await fetch("/api/cookies?all=true", { cache: "no-store" })
+      if (!res.ok) {
+        console.error("[MonthlyCookiesAdmin] API error:", res.status)
+        return
+      }
       const data = await res.json()
       if (Array.isArray(data)) {
         setAvailableCookies(
@@ -143,6 +148,8 @@ export function MonthlyCookiesAdmin() {
             image_url: c.image_urls?.[0] || "",
           }))
         )
+      } else {
+        console.error("[MonthlyCookiesAdmin] Expected array but got:", data)
       }
     } catch (e) {
       console.error("Error fetching cookies:", e)
@@ -259,11 +266,11 @@ export function MonthlyCookiesAdmin() {
   }
 
   const toggleCookieSelection = (cookie: CookieItem) => {
-    const exists = selectedCookies.find((item) => item.cookie_id === cookie.id)
+    const exists = selectedCookies.find((item: CollectionItem) => item.cookie_id === cookie.id)
     if (exists) {
-      setSelectedCookies((prev) => prev.filter((item) => item.cookie_id !== cookie.id))
+      setSelectedCookies((prev: CollectionItem[]) => prev.filter((item: CollectionItem) => item.cookie_id !== cookie.id))
     } else {
-      setSelectedCookies((prev) => [
+      setSelectedCookies((prev: CollectionItem[]) => [
         ...prev,
         { cookie_id: cookie.id, display_order: prev.length, is_hero: false, cookie },
       ])
@@ -333,7 +340,7 @@ export function MonthlyCookiesAdmin() {
       .select("*, cookie:cookies(id, name, description, price, image_urls)")
       .eq("collection_id", collection.id)
       .order("display_order")
-      .then(({ data }) => {
+      .then(({ data }: { data: Array<Record<string, any>> | null }) => {
         if (data) {
           const getImg = (raw: any) => {
             if (!raw) return ""
@@ -367,7 +374,7 @@ export function MonthlyCookiesAdmin() {
   }
 
   const handleFormPreview = () => {
-    const items = selectedCookies.map((item) => ({
+    const items = selectedCookies.map((item: CollectionItem) => ({
       is_hero: item.is_hero,
       custom_tag: item.custom_tag,
       cookie: {
@@ -391,7 +398,7 @@ export function MonthlyCookiesAdmin() {
     setIsPreviewOpen(true)
   }
 
-  const filteredCookies = availableCookies.filter((c) =>
+  const filteredCookies = availableCookies.filter((c: CookieItem) =>
     c.name.toLowerCase().includes(cookieSearch.toLowerCase())
   )
 
@@ -430,7 +437,7 @@ export function MonthlyCookiesAdmin() {
 
       {/* Collections list */}
       <div className="space-y-3">
-        {collections.map((collection) => (
+        {collections.map((collection: MonthlyCollection) => (
           <div
             key={collection.id}
             className={`group bg-white rounded-2xl border transition-all duration-200 ${
@@ -641,7 +648,7 @@ export function MonthlyCookiesAdmin() {
                   <Label className="text-sm font-semibold text-gray-700">Color de fondo</Label>
                   {availableColors.length > 0 ? (
                     <div className="grid grid-cols-8 gap-2 p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                      {availableColors.map((color) => {
+                      {availableColors.map((color: ColorOption) => {
                         const isSelected = formData.bg_color === color.hex
                         return (
                           <button
@@ -751,8 +758,8 @@ export function MonthlyCookiesAdmin() {
 
                 {/* Cookie grid picker */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-52 overflow-y-auto pr-1">
-                  {filteredCookies.map((cookie) => {
-                    const isSelected = selectedCookies.some((s) => s.cookie_id === cookie.id)
+                  {filteredCookies.map((cookie: CookieItem) => {
+                    const isSelected = selectedCookies.some((s: CollectionItem) => s.cookie_id === cookie.id)
                     return (
                       <button
                         key={cookie.id}
@@ -791,7 +798,7 @@ export function MonthlyCookiesAdmin() {
                       <p className="text-xs text-gray-400">Arrastra o usa las flechas para ordenar</p>
                     </div>
                     <div className="space-y-2">
-                      {selectedCookies.map((item, idx) => (
+                      {selectedCookies.map((item: CollectionItem, idx: number) => (
                         <div
                           key={item.cookie_id}
                           className="flex items-center gap-3 bg-gray-50 border border-gray-100 p-2.5 rounded-xl"
