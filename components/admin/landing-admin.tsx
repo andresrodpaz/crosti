@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, Save, Plus, Trash2, Upload, Type, Palette } from "lucide-react"
+
+interface LandingSection {
+  id: string
+  title: string
+  description: string
+  type: "campaign" | "promo" | "feature"
+}
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   defaultSocialSettings,
@@ -27,12 +34,7 @@ interface LandingConfig {
   feature_2_desc: string
   feature_3_title: string
   feature_3_desc: string
-  sections?: Array<{
-    id: string
-    title: string
-    description: string
-    type: "campaign" | "promo" | "feature"
-  }>
+  sections?: LandingSection[]
   typography?: {
     fontFamily?: string
     headingSize?: string

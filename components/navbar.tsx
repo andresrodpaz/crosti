@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag } from "lucide-react"
+import { STORE_ENABLED } from "@/lib/feature-flags"
 
 interface NavbarProps {
   onCartClick?: () => void
@@ -12,6 +13,8 @@ interface NavbarProps {
 }
 
 export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
+  // El carrito sólo tiene sentido con la tienda activa
+  const showCart = STORE_ENABLED && Boolean(onCartClick)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const isHome = pathname === "/"
@@ -32,10 +35,10 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
     { name: "Inicio", href: "/" },
     { name: "Nosotros", action: () => scrollToSection("nosotros") },
     { name: "Galletas", href: "/galletas" },
+    { name: "Barcelona", href: "/galletas/galletas-artesanales-barcelona" },
+    { name: "Tienda", href: "/tienda" },
     { name: "Contacto", action: () => scrollToSection("contacto") },
-    // TODO: Re-enable when store is ready to launch
-    // { name: "Tienda", href: "/tienda" },
-  ]
+  ].filter((link) => STORE_ENABLED || link.href !== "/tienda")
 
   return (
     <header className="relative z-[100] px-4 md:px-8 lg:px-16 py-4 md:py-6 bg-transparent">
@@ -74,7 +77,7 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
             ))}
 
             {/* Cart Button - Desktop */}
-            {onCartClick && (
+            {showCart && (
               <button
                 onClick={onCartClick}
                 className="relative text-[#930021] hover:opacity-80 transition-opacity p-2"
@@ -93,7 +96,7 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             {/* Cart Button - Mobile (always visible) */}
-            {onCartClick && (
+            {showCart && (
               <button
                 onClick={onCartClick}
                 className="relative text-[#930021] p-2"
@@ -146,10 +149,10 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
               ))}
 
               {/* Cart Button - Mobile */}
-              {onCartClick && (
+              {showCart && (
                 <button
                   onClick={() => {
-                    onCartClick()
+                    onCartClick?.()
                     setMobileMenuOpen(false)
                   }}
                   className="flex items-center gap-3 text-[#930021] text-lg font-medium py-2"

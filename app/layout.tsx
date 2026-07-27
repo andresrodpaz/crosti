@@ -8,9 +8,9 @@ import "./globals.css"
 const workSans = Work_Sans({ subsets: ["latin"], variable: "--font-work-sans" })
 
 export const metadata: Metadata = {
-  title: "Crosti Cookies | Galletas Horneadas en Barcelona, loved everywhere.",
+  title: "Crosti Cookies | Galletas Artesanales en Barcelona",
   description:
-    "Galletas artesanales horneadas frescas cada día en Barcelona. Ingredientes premium, sabores únicos y envío a domicilio. ¡Pide ya en Crosti!",
+    "Crosti Cookies ofrece galletas artesanales en Barcelona, horneadas a diario con ingredientes de alta calidad, sabores únicos y pedido online para Barcelona.",
   keywords: [
     "galletas artesanales Barcelona",
     "mejores galletas Barcelona",
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     canonical: "https://crosti.es",
   },
   openGraph: {
-    title: "Crosti Cookies | Horneadas en Barcelona, loved everywhere.",
+    title: "Crosti Cookies | Galletas Artesanales en Barcelona",
     description:
-      "Galletas artesanales horneadas frescas a diario en Barcelona. Sabores de temporada, ingredientes premium, hechas con amor.",
+      "Galletas artesanales horneadas frescas a diario en Barcelona. Sabores de temporada, ingredientes premium y pedido online para Barcelona.",
     url: "https://crosti.es",
     siteName: "Crosti Cookies",
     locale: "es_ES",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Crosti Cookies | Horneadas en Barcelona, loved everywhere.",
-    description: "Las mejores galletas artesanales de Barcelona, horneadas frescas a diario.",
+    description: "Las mejores galletas artesanales de Barcelona, horneadas frescas a diario para disfrutar en casa o en eventos.",
     images: ["https://crosti.es/og-image.jpg"],
   },
   icons: {

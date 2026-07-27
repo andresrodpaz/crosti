@@ -65,8 +65,7 @@ export function BoxesSection() {
       type: "box",
       name: box.name,
       price: box.price,
-      quantity: 1,
-      image: box.image_url,
+      image: box.image_url ?? undefined,
       boxId: box.id,
       boxCookies: box.cookies.map((c) => ({
         cookieId: c.cookie_id,

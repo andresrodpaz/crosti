@@ -4,6 +4,7 @@ import { Facebook, Instagram } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { defaultSocialSettings } from "@/lib/social-settings"
+import { STORE_ENABLED } from "@/lib/feature-flags"
 
 export function Footer() {
   const social = defaultSocialSettings
@@ -43,6 +44,24 @@ export function Footer() {
               >
                 Preguntas Frecuentes
               </Link>
+              <span>·</span>
+              <Link 
+                href="/galletas/galletas-artesanales-barcelona"
+                className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
+              >
+                Galletas en Barcelona
+              </Link>
+              {STORE_ENABLED && (
+                <>
+                  <span>·</span>
+                  <Link
+                    href="/tienda/galletas-artesanales-barcelona"
+                    className="hover:text-white focus:text-white focus:outline-none focus:underline transition-colors"
+                  >
+                    Comprar en Barcelona
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 

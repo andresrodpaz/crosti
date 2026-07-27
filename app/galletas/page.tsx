@@ -186,7 +186,10 @@ export default function GalletasPage() {
 
         <div className="text-center mb-10 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-bold text-[#930021] mb-4">Todas nuestras galletas</h1>
-          <p className="text-[#930021]/80">Descubre nuestra variedad de sabores artesanales</p>
+          <p className="text-[#930021]/80">Descubre nuestra variedad de sabores artesanales y encuentra la mejor opción para pedir en Barcelona.</p>
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[#4A3728]">
+            Crosti Cookies hornea galletas artesanales frescas a diario con ingredientes premium y recetas pensadas para compartir, regalar o disfrutar en casa.
+          </p>
         </div>
 
         {/* Search and Filter Bar */}

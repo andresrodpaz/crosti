@@ -5,10 +5,18 @@ import type { CartItem } from "@/lib/types/orders"
 import { getInvoicePDFBlob } from "@/lib/invoice-generator"
 import type { InvoiceData } from "@/lib/invoice-generator"
 import { put } from "@vercel/blob"
+import { STORE_ENABLED } from "@/lib/feature-flags"
 import fs from "fs"
 import path from "path"
 
 export async function POST(request: NextRequest) {
+  if (!STORE_ENABLED) {
+    return NextResponse.json(
+      { error: "La tienda online está temporalmente deshabilitada" },
+      { status: 503 },
+    )
+  }
+
   try {
     const body = await request.json()
     const { name, email, whatsapp, address, delivery_date, delivery_time, note, items, total_amount } = body

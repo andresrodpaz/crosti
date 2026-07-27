@@ -36,7 +36,7 @@ export function CookieDetailModal({ cookie, onClose }: CookieDetailModalProps) {
 
   return (
     <div
-      className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 z-[200] transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
@@ -131,9 +131,9 @@ export function CookieDetailModal({ cookie, onClose }: CookieDetailModalProps) {
 
           {/* Right side - Details */}
           <div className="w-full md:w-1/2 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col justify-start md:justify-center">
+            <div className="flex-1 overflow-y-auto p-6 md:p-10 pt-8 md:pt-10 flex flex-col justify-start">
               {/* Title */}
-              <h2 className="font-serif text-3xl md:text-5xl mb-2 text-[#930021] leading-tight">{cookie.name}</h2>
+              <h2 className="font-sans font-bold text-2xl md:text-4xl mb-2 text-[#930021] leading-tight">{cookie.name}</h2>
 
               {/* Price */}
               <p className="text-2xl md:text-3xl text-[#924c14] mb-6 md:mb-8 font-light">{cookie.price.toFixed(2)}€</p>

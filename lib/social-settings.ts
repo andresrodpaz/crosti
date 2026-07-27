@@ -28,7 +28,7 @@ export function getSocialSettingsFromSections(sections: unknown): SocialSettings
 export function upsertSocialSettingsInSections(
   sections: unknown,
   settings: SocialSettings,
-): Array<Record<string, unknown>> {
+): Array<Record<string, unknown> & { id: string; title: string; description: string; type: "campaign" | "feature" | "promo" }> {
   const list = Array.isArray(sections) ? [...sections] : []
   const index = list.findIndex((item: any) => item?.id === "social_settings")
   const payload = { id: "social_settings", ...settings, type: "feature", title: "Redes sociales", description: "" }

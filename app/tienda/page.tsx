@@ -75,7 +75,7 @@ export default function TiendaPage() {
           Nuestra<br />Tienda
         </h1>
         <p className="text-base md:text-lg text-[#930021]/60 max-w-md mb-12 leading-relaxed font-medium">
-          Elige tus galletas, arma tu pedido y recíbelas en casa.
+          Elige tus galletas artesanales en Barcelona, arma tu pedido y recíbelas en casa o recoge en tienda.
         </p>
 
         {/* Steps */}

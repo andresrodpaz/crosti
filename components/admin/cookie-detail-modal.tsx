@@ -2,10 +2,17 @@
 
 import { X } from "lucide-react"
 import { useState, useEffect } from "react"
-import type { CookieItem } from "@/lib/store"
 
 type CookieDetailModalProps = {
-  cookie: CookieItem
+  cookie: {
+    name: string
+    description: string
+    price: number
+    ingredients?: string[]
+    imageUrls?: string[]
+    mainImageIndex?: number
+    tags?: Array<{ name?: string; color?: string }>
+  }
   onClose: () => void
 }
 
@@ -13,6 +20,7 @@ export function CookieDetailModal({ cookie, onClose }: CookieDetailModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(cookie.mainImageIndex || 0)
   const [isVisible, setIsVisible] = useState(false)
   const images = cookie.imageUrls || []
+  const tags = cookie.tags || []
 
   useEffect(() => {
     setIsVisible(true)
@@ -50,13 +58,13 @@ export function CookieDetailModal({ cookie, onClose }: CookieDetailModalProps) {
 
         <div className="flex h-full">
           <div className="flex-1 relative bg-[#faf7f2] flex flex-col">
-            {cookie.tags.length > 0 && (
+            {tags.length > 0 && (
               <div className="absolute top-6 left-6 z-10">
                 <div
                   className="bg-white/95 px-4 py-2 rounded-xl text-xs font-bold uppercase shadow-md"
-                  style={{ color: cookie.tags[0].color }}
+                  style={{ color: tags[0]?.color }}
                 >
-                  {cookie.tags[0].name}
+                  {tags[0]?.name}
                 </div>
               </div>
             )}

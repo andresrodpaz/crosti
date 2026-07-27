@@ -87,7 +87,7 @@ export default function FAQPage() {
             </h1>
             <p className="text-[#6B4226]/80 text-lg max-w-xl mx-auto">
               Todo lo que necesitas saber sobre nuestras galletas artesanales,
-              horarios, pedidos y más.
+              horarios, pedidos online y servicio en Barcelona.
             </p>
           </div>
 
