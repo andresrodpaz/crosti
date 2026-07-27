@@ -4,6 +4,8 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Plus, Pencil, Trash2, X, Tag } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { ConfirmationModal } from "@/components/confirmation-modal"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 
 type TagType = {
   id: string
@@ -26,6 +28,19 @@ export function TagsAdmin() {
   const [formData, setFormData] = useState({
     name: "",
     colorId: "",
+  })
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    type: "danger" | "warning" | "info"
+    onConfirm: () => Promise<void>
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+    onConfirm: async () => {},
   })
 
   useEffect(() => {
@@ -110,28 +125,25 @@ export function TagsAdmin() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar esta etiqueta?")) return
+  const handleDeleteClick = (tag: TagType) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar etiqueta",
+      message: `¿Estás seguro de que quieres eliminar la etiqueta "${tag.name}"? Esta acción no se puede deshacer.`,
+      type: "danger",
+      onConfirm: async () => {
+        const supabase = createClient()
+        const { error } = await supabase.from("tags").delete().eq("id", tag.id)
 
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.from("tags").delete().eq("id", id)
+        if (error) throw error
 
-      if (error) throw error
-
-      await loadTags()
-    } catch (error) {
-      console.error("[Message] Error deleting tag:", error)
-      alert("Error al eliminar la etiqueta: " + (error as any).message)
-    }
+        await loadTags()
+      },
+    })
   }
 
   if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-[200px]">
-        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
+    return <AdminSpinner message="Cargando etiquetas..." />
   }
 
   return (
@@ -174,7 +186,7 @@ export function TagsAdmin() {
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(tag.id)}
+                  onClick={() => handleDeleteClick(tag)}
                   className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   aria-label="Eliminar"
                 >
@@ -262,6 +274,16 @@ export function TagsAdmin() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
     </div>
   )
 }

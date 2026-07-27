@@ -35,7 +35,6 @@ export function Navbar({ onCartClick, cartItemCount = 0 }: NavbarProps) {
     { name: "Inicio", href: "/" },
     { name: "Nosotros", action: () => scrollToSection("nosotros") },
     { name: "Galletas", href: "/galletas" },
-    { name: "Barcelona", href: "/galletas/galletas-artesanales-barcelona" },
     { name: "Tienda", href: "/tienda" },
     { name: "Contacto", action: () => scrollToSection("contacto") },
   ].filter((link) => STORE_ENABLED || link.href !== "/tienda")

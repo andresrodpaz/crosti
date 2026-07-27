@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Plus, Pencil, Trash2, X, Palette } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ConfirmationModal } from "@/components/confirmation-modal"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 
 type Color = {
   id: string
@@ -133,11 +134,7 @@ export function ColorsAdmin() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-[200px]">
-        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
+    return <AdminSpinner message="Cargando colores..." />
   }
 
   return (

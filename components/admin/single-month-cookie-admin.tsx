@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { Check, Star, Save, Image as ImageIcon, Cookie, Pencil, AlertTriangle, CheckCircle2, Type, Sliders, Eye, EyeOff } from "lucide-react"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface CookieItem {
@@ -216,11 +217,7 @@ export function SingleMonthCookieAdmin() {
 
   const updateStyle = (updates: Partial<StyleConfig>) => setStyleConfig(prev => ({ ...prev, ...updates }))
 
-  if (loading) return (
-    <div className="p-8 flex items-center justify-center min-h-[300px]">
-      <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
-    </div>
-  )
+  if (loading) return <AdminSpinner message="Cargando Galleta del Mes..." />
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto">

@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Plus, Pencil, Trash2, Upload, X, Eye, EyeOff, Star, Search, Download, CheckCircle2, XCircle } from "lucide-react"
 import { ConfirmationModal } from "@/components/confirmation-modal"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 import { CookieDetailModal } from "@/components/admin/cookie-detail-modal"
 import { createClient } from "@/lib/supabase/client"
 // Solo importamos Tag del store (para el tipo). CookieItem se redefine aquí
@@ -615,10 +616,7 @@ export function CookiesAdmin({ onSaved }: { onSaved?: () => void }) {
       )}
       <div className="p-8">
         {loading && (
-          <div className="p-8 flex items-center justify-center min-h-[200px] bg-white rounded-2xl border border-gray-100 mb-6">
-            <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
-            <span className="sr-only">Cargando galletas...</span>
-          </div>
+          <AdminSpinner message="Cargando galletas..." />
         )}
         {!loading && (
           <>

@@ -15,6 +15,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import { ConfirmationModal } from "@/components/confirmation-modal"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 
 interface Banner {
   id: string
@@ -33,6 +35,19 @@ export function BannersAdmin() {
   const [isLoading, setIsLoading] = useState(true)
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    type: "danger" | "warning" | "info"
+    onConfirm: () => Promise<void>
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+    onConfirm: async () => {},
+  })
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
@@ -122,17 +137,23 @@ export function BannersAdmin() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este banner?")) return
-
-    try {
-      const res = await fetch(`/api/banners/${id}`, { method: "DELETE" })
-      if (res.ok) {
-        loadBanners()
-      }
-    } catch (error) {
-      console.error("Error deleting banner:", error)
-    }
+  const handleDeleteClick = (banner: Banner) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar banner",
+      message: `¿Estás seguro de que quieres eliminar el banner "${banner.title}"? Esta acción no se puede deshacer.`,
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/banners/${banner.id}`, { method: "DELETE" })
+          if (res.ok) {
+            loadBanners()
+          }
+        } catch (error) {
+          console.error("Error deleting banner:", error)
+        }
+      },
+    })
   }
 
   const toggleActive = async (banner: Banner) => {
@@ -151,11 +172,7 @@ export function BannersAdmin() {
   }
 
   if (isLoading) {
-    return (
-      <div className="p-8 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#930021]/20 border-t-[#930021] rounded-full animate-spin" />
-      </div>
-    )
+    return <AdminSpinner message="Cargando banners..." />
   }
 
   return (
@@ -222,7 +239,7 @@ export function BannersAdmin() {
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(banner.id)}
+                  onClick={() => handleDeleteClick(banner)}
                   className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -353,6 +370,15 @@ export function BannersAdmin() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
     </div>
   )
 }

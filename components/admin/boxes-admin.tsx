@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import { ConfirmationModal } from "@/components/confirmation-modal"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 
 interface CookieItem {
   id: string
@@ -40,6 +42,19 @@ export function BoxesAdmin() {
   const [editingBox, setEditingBox] = useState<Box | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const { toast } = useToast()
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    type: "danger" | "warning" | "info"
+    onConfirm: () => Promise<void>
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+    onConfirm: async () => {},
+  })
 
   const [formData, setFormData] = useState({
     name: "",
@@ -143,18 +158,24 @@ export function BoxesAdmin() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar esta caja?")) return
-
-    try {
-      const res = await fetch(`/api/boxes/${id}`, { method: "DELETE" })
-      if (res.ok) {
-        toast({ title: "Exito", description: "Caja eliminada" })
-        fetchBoxes()
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" })
-    }
+  const handleDeleteClick = (box: Box) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar caja",
+      message: `¿Estás seguro de que quieres eliminar la caja "${box.name}"? Esta acción no se puede deshacer.`,
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/boxes/${box.id}`, { method: "DELETE" })
+          if (res.ok) {
+            toast({ title: "Éxito", description: "Caja eliminada" })
+            fetchBoxes()
+          }
+        } catch (error) {
+          toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" })
+        }
+      },
+    })
   }
 
   const toggleVisibility = async (box: Box) => {
@@ -211,11 +232,7 @@ export function BoxesAdmin() {
   const getCookieById = (id: string) => cookies.find((c) => c.id === id)
 
   if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#930021] border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
+    return <AdminSpinner message="Cargando cajas..." />
   }
 
   return (
@@ -497,7 +514,7 @@ export function BoxesAdmin() {
                   variant="outline"
                   size="sm"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 bg-transparent"
-                  onClick={() => handleDelete(box.id)}
+                  onClick={() => handleDeleteClick(box)}
                 >
                   <Trash2 className="w-3 h-3" />
                 </Button>
@@ -516,6 +533,15 @@ export function BoxesAdmin() {
           </Button>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
     </div>
   )
 }

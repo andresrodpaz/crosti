@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { createClient } from "@/lib/supabase/client"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 import { MonthlyCookiesSection } from "../monthly-cookies-section"
 import type { MonthlyCollection as MonthlyCollectionData } from "../monthly-cookies-section"
 import { toast } from "@/components/ui/use-toast"

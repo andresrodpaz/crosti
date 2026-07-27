@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { AdminSpinner } from "@/components/admin/admin-spinner"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -277,14 +278,7 @@ export function OrdersAdmin() {
   }
 
   if (loading) {
-    return (
-      <div className="p-8">
-        <div className="text-center py-12">
-          <div className="w-12 h-12 bg-primary rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Cargando pedidos...</p>
-        </div>
-      </div>
-    )
+    return <AdminSpinner message="Cargando pedidos..." />
   }
 
   if (error) {
