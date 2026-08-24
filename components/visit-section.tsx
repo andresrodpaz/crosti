@@ -32,8 +32,32 @@ export function VisitSection() {
               <h3 className="text-[#930021] font-bold text-base md:text-lg mb-2">Horarios</h3>
               <div className="text-sm space-y-2">
                 <div>
-                  <p className="text-[#930021] font-medium">Lunes a Domingo</p>
-                  <p className="text-[#930021]/70">11:00 - 20:00</p>
+                  <p className="text-[#930021] font-medium">Lunes</p>
+                  <p className="text-[#930021]/70">Cerrado</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Martes</p>
+                  <p className="text-[#930021]/70">11:30 - 20:00</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Miércoles</p>
+                  <p className="text-[#930021]/70">11:30 - 20:00</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Jueves</p>
+                  <p className="text-[#930021]/70">11:30 - 20:00</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Viernes</p>
+                  <p className="text-[#930021]/70">11:30 - 20:00</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Sábado</p>
+                  <p className="text-[#930021]/70">10:30 - 20:00</p>
+                </div>
+                <div>
+                  <p className="text-[#930021] font-medium">Domingo</p>
+                  <p className="text-[#930021]/70">10:30 - 19:30</p>
                 </div>
               </div>
             </div>
