@@ -12,7 +12,7 @@ export function VisitSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {/* Left side - Info */}
           <div className="space-y-6 md:space-y-8">
             <div>
@@ -36,19 +36,7 @@ export function VisitSection() {
                   <p className="text-[#930021]/70">Cerrado</p>
                 </div>
                 <div>
-                  <p className="text-[#930021] font-medium">Martes</p>
-                  <p className="text-[#930021]/70">11:30 - 20:00</p>
-                </div>
-                <div>
-                  <p className="text-[#930021] font-medium">Miércoles</p>
-                  <p className="text-[#930021]/70">11:30 - 20:00</p>
-                </div>
-                <div>
-                  <p className="text-[#930021] font-medium">Jueves</p>
-                  <p className="text-[#930021]/70">11:30 - 20:00</p>
-                </div>
-                <div>
-                  <p className="text-[#930021] font-medium">Viernes</p>
+                  <p className="text-[#930021] font-medium">Martes a Viernes</p>
                   <p className="text-[#930021]/70">11:30 - 20:00</p>
                 </div>
                 <div>
@@ -72,7 +60,7 @@ export function VisitSection() {
             </div>
           </div>
 
-          <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200 h-64 md:h-80">
+          <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200 h-64 md:h-full min-h-[300px]">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2993.7!2d2.1891!3d41.3954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a4a31c5e5e5e5e%3A0x5e5e5e5e5e5e5e5e!2sCarrer%20de%20Llull%2C%20223%2C%2008005%20Barcelona%2C%20Spain!5e0!3m2!1sen!2sus!4v1699999999999!5m2!1sen!2sus"
               width="100%"
